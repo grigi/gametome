@@ -3,6 +3,15 @@
 {% block head_title %}HP-TLGT{% endblock %}
 
 {% block content %}
+<small class="pull-right">
+	Page {{ news_list.number }} of {{ news_list.paginator.num_pages }}
+	{% if news_list.has_previous or news_list.has_next %}
+	    &nbsp;
+	    {% if news_list.has_previous %}<a href="?page={{ news_list.previous_page_number }}">{% endif %}&laquo; Previous{% if news_list.has_previous %}</a>{% endif %}
+	    |
+	    {% if news_list.has_next %}<a href="?page={{ news_list.next_page_number }}">{% endif %}Next &raquo;{% if news_list.has_next %}</a>{% endif %}
+	{% endif %}
+</small><br/>
 <h1 align="center">News</h1>
 
 {% for news in news_list %}
@@ -29,4 +38,15 @@
 <br/>
 {% endfor %}
 
+<div align="center">
+	<small>
+		Page {{ news_list.number }} of {{ news_list.paginator.num_pages }}
+		{% if news_list.has_previous or news_list.has_next %}
+		    &nbsp;
+		    {% if news_list.has_previous %}<a href="?page={{ news_list.previous_page_number }}">{% endif %}&laquo; Previous{% if news_list.has_previous %}</a>{% endif %}
+		    |
+		    {% if news_list.has_next %}<a href="?page={{ news_list.next_page_number }}">{% endif %}Next &raquo;{% if news_list.has_next %}</a>{% endif %}
+		{% endif %}
+	</small>
+</div>
 {% endblock %}

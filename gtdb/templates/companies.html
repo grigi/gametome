@@ -3,6 +3,15 @@
 {% block head_title %}Companies{% endblock %}
 
 {% block content %}
+<small class="pull-right">
+	Page {{ comp_list.number }} of {{ comp_list.paginator.num_pages }}
+	{% if comp_list.has_previous or comp_list.has_next %}
+	    &nbsp;
+	    {% if comp_list.has_previous %}<a href="?page={{ comp_list.previous_page_number }}">{% endif %}&laquo; Previous{% if comp_list.has_previous %}</a>{% endif %}
+	    |
+	    {% if comp_list.has_next %}<a href="?page={{ comp_list.next_page_number }}">{% endif %}Next &raquo;{% if comp_list.has_next %}</a>{% endif %}
+	{% endif %}
+</small><br/>
 <h1 align="center">Companies</h1>
 
 {% for comp in comp_list %}
@@ -29,4 +38,15 @@
 <br/>
 {% endfor %}
 
+<div align="center">
+	<small>
+		Page {{ comp_list.number }} of {{ comp_list.paginator.num_pages }}
+		{% if comp_list.has_previous or comp_list.has_next %}
+		    &nbsp;
+		    {% if comp_list.has_previous %}<a href="?page={{ comp_list.previous_page_number }}">{% endif %}&laquo; Previous{% if comp_list.has_previous %}</a>{% endif %}
+		    |
+		    {% if comp_list.has_next %}<a href="?page={{ comp_list.next_page_number }}">{% endif %}Next &raquo;{% if comp_list.has_next %}</a>{% endif %}
+		{% endif %}
+	</small>
+</div>
 {% endblock %}

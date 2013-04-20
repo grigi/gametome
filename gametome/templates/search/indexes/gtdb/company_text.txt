@@ -3,6 +3,12 @@
 {{ object.description | safe}}
 {{ object.created_date }}
 {% for tag in object.tags.all %} {{tag}}{% endfor %}
+{% for game in object.games.all %}
+{{ game.title }}
+{{ game.short }}
+{{ game.created_date }}
+{% for tag in game.tags.all %} {{tag}}{% endfor %}
+{% endfor %}
 {% for comment in object.comments.all %}
 {{ comment.title }}
 {{ comment.description | safe }}

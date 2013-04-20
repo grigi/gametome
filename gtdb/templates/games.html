@@ -3,6 +3,15 @@
 {% block head_title %}Games{% endblock %}
 
 {% block content %}
+<small class="pull-right">
+	Page {{ games_list.number }} of {{ games_list.paginator.num_pages }}
+	{% if games_list.has_previous or games_list.has_next %}
+	    &nbsp;
+	    {% if games_list.has_previous %}<a href="?page={{ games_list.previous_page_number }}">{% endif %}&laquo; Previous{% if games_list.has_previous %}</a>{% endif %}
+	    |
+	    {% if games_list.has_next %}<a href="?page={{ games_list.next_page_number }}">{% endif %}Next &raquo;{% if games_list.has_next %}</a>{% endif %}
+	{% endif %}
+</small><br/>
 <h1 align="center">Games</h1>
 
 {% for game in games_list %}
@@ -30,4 +39,15 @@
 <br/>
 {% endfor %}
 
+<div align="center">
+	<small>
+		Page {{ games_list.number }} of {{ games_list.paginator.num_pages }}
+		{% if games_list.has_previous or games_list.has_next %}
+		    &nbsp;
+		    {% if games_list.has_previous %}<a href="?page={{ games_list.previous_page_number }}">{% endif %}&laquo; Previous{% if games_list.has_previous %}</a>{% endif %}
+		    |
+		    {% if games_list.has_next %}<a href="?page={{ games_list.next_page_number }}">{% endif %}Next &raquo;{% if games_list.has_next %}</a>{% endif %}
+		{% endif %}
+	</small>
+</div>
 {% endblock %}

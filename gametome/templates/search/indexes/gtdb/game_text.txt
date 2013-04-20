@@ -6,6 +6,9 @@
 {{ object.created_date }}
 {{ object.cost }}
 {% for tag in object.tags.all %} {{tag}}{% endfor %}
+{{ object.company.title }}
+{{ object.company.short }}
+{{ object.company.description | safe }}
 {% for comment in object.comments.all %}
 {{ comment.title }}
 {{ comment.description | safe }}
