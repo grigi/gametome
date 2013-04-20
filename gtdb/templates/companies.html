@@ -33,7 +33,7 @@
 </div>
 {{ comp.description | safe }}
 <br/>
-[<a href="{% url 'company' comp.pk %}">Read more... {{ comp.comments.count }} Comments</a>]
+[<a href="{% url 'company' comp.pk %}">Read more... {{ comp.games.count }} Games, {{ comp.comments.count }} Comments</a>]
 <br/>
 <br/>
 {% endfor %}

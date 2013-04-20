@@ -17,7 +17,10 @@ sanhtml = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
 def user_factory(username):
     if username is None:
         username = 'Anonymous'
-    (user, created) = User.objects.get_or_create(username=username)
+    try:
+        user = User.objects.get(username__iexact=username)
+    except User.DoesNotExist:
+        user = User.objects.create(username=username)
     return user
 
 def company_factory(compname, author):
@@ -25,10 +28,22 @@ def company_factory(compname, author):
         author = 'Unspecified'
     if compname is None or compname == '':
         compname = author
-    (company, created) = Company.objects.get_or_create(title=compname, defaults={'created_date': now(), 'updated_date': now(), 'description': ''})
-    company.description += "%s\n" % (author)
-    company.save()
-    return company    
+    try:
+        company = Company.objects.get(title__iexact=compname)
+        if company.description.lower().find(author.lower()) == -1:
+            company.description += "%s\n" % (author)
+            company.save()
+    except Company.DoesNotExist:
+        company = Company.objects.create(title=compname, created_date=now(), updated_date=now(), description="%s\n" % (author))
+    return company
+
+def sanitize_desc(desc):
+    # Replace the following with a link to the real game:
+    #'http://www.happypenguin.org/show?Fashion%20Cents%20Deluxe'
+    # Oh, this probably needs to be done at the end, because it may, or may not exist yet.
+    
+    desc = sanhtml.parse(desc).toxml()[19:][:-14]
+    return desc
 
 def iter_fields_and_do(Clazz, field_name, func):
     for field in Clazz._meta.local_fields:
@@ -46,16 +61,16 @@ def turn_off_auto_now_add(Clazz, field_name):
 
 def sub_comments(game,parent,dic):
     for l in dic:
-        desc = sanhtml.parse(l['comment']).toxml()[19:][:-14]
+        desc = sanitize_desc(l['comment'])
         if len(desc) > 0:
             com = Comment.objects.create(
                 created_date = l['timestamp'],
                 updated_date = l['timestamp'],
-                description = sanhtml.parse(l['comment']).toxml()[19:][:-14],
-                entity = parent,
+                description = desc,
+                entity = game,
                 title = l['subject'],
                 reporter = user_factory(l['user']),
-                #parent = parent
+                parent = parent
             )
             sub_comments(game, com, l['comments'])
         else:
@@ -86,11 +101,15 @@ class Command(BaseCommand):
         for g in doc[:200]:
             #print(json.dumps(g,indent=4,sort_keys=True))
             
-            # Not handling: screenshot, other, approved_by, approved_date, author, company
+            # Not handling: screenshot, approved_by, approved_date
+            
+            desc = g['description']
+            if len(g['other']) > 2:
+                desc += "<br/><h4>Other information:</h4>" + g['other']
             
             game = Game.objects.create(
                 title=g['title'],
-                description=g['description'],
+                description=sanitize_desc(desc),
                 short=g['short_description'],
                 reporter=user_factory(g['submitted_by']),
                 created_date = '%sT00:00:00+00:00' % (g['date_sumbitted']),
@@ -105,7 +124,7 @@ class Command(BaseCommand):
                 game.tags.add(g['license'])
             
             for l in g['comments']:
-                desc = sanhtml.parse(l['comment']).toxml()[19:][:-14]
+                desc = sanitize_desc(l['comment'])
                 if len(desc) > 0:
                     com = Comment.objects.create(
                         created_date = l['timestamp'],
@@ -117,7 +136,7 @@ class Command(BaseCommand):
                     )
                     sub_comments(game, com, l['comments'])
                 else:
-                    sub_comments(game, game, l['comments'])
+                    sub_comments(game, None, l['comments'])
         
             for r in g['ratings']:
                 rate = Review.objects.create(
@@ -165,11 +184,10 @@ class Command(BaseCommand):
                 short = None
             
             desc = re.sub(r'^<a href.*Category:.*Rating.*Description[^\n]*', '', desc, flags=re.MULTILINE|re.DOTALL)
-            desc = sanhtml.parse(desc).toxml()[19:][:-14]
             
             news = News.objects.create(
                 title=n['headline'],
-                description=desc,
+                description=sanitize_desc(desc),
                 short=short,
                 reporter=user_factory(n['user']),
                 created_date = n['timestamp'],
@@ -180,19 +198,19 @@ class Command(BaseCommand):
             if cat:
                 news.tags.add(cat)
             for l in n['comments']:
-                desc = sanhtml.parse(l['comment']).toxml()[19:][:-14]
+                desc = sanitize_desc(l['comment'])
                 if len(desc) > 0:
                     com = Comment.objects.create(
                         created_date = l['timestamp'],
                         updated_date = l['timestamp'],
-                        description = sanhtml.parse(l['comment']).toxml()[19:][:-14],
+                        description = desc,
                         entity = news,
                         title = l['subject'],
                         reporter = user_factory(l['user'])
                     )
                     sub_comments(news, com, l['comments'])
                 else:
-                    sub_comments(news, news, l['comments'])
+                    sub_comments(news, None, l['comments'])
 
             count = count+1
             if count==100:
