@@ -2,7 +2,7 @@
 
 {% block head_title %}Games{% endblock %}
 
-{% block body %}
+{% block content %}
 <h1 align="center">Games</h1>
 
 {% for game in games_list %}
@@ -15,6 +15,7 @@
 		</small></div>
 		<h2 style="margin: 10px 10px 10px 0px;"><a href="{% url 'game' game.pk %}" style="text-decoration: none; color: inherit;">{{ game.title }}</a></h2>
 		{% if game.short %}{{ game.short }}{% endif %}
+		<a href="{% url 'company' game.company.pk %}" style="color: inherit;"class="pull-right" style="padding: 0px; margin: 0px;">Developer: {{ game.company.title }}</a>
 	</div>
 	<p class="pull-right" style="padding: 0px; margin: 0px;">
 	{% for tag in game.tags.all %}

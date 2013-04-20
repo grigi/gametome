@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block head_title %}Company - {{ comp.title }}{% endblock %}
+
+{% block content %}
+
+<div class="navbar">
+	<div class="navbar-inner">
+		<div class="container pull-right"><small>
+			By {{ comp.reporter.name }} on {{ comp.created_date }}
+			<br/>
+			<div align="right">rating</div>
+		</small></div>
+		<h2 style="margin: 10px 10px 10px 0px;">{{ comp.title }}</h2>
+		{% if comp.short %}{{ comp.short }}{% endif %}
+	</div>
+	<p class="pull-right" style="padding: 0px; margin: 0px;">
+	{% for tag in comp.tags.all %}
+		<span class="label">{{tag}}</span>
+	{% endfor %}
+	</p>
+</div>
+{{ comp.description | safe }}
+<br/>
+<h2>Games:</h2>
+{% for game in comp.games.all %}
+<div class="navbar">
+	<div class="well" style="margin-left: 10px; padding: 10px;">
+		<div class="container pull-right"><small>
+			By {{ game.reporter.name }} on {{ game.created_date }}
+			<br/>
+			<div align="right">rating</div>
+		</small></div>
+		<h2 style="margin: 10px 10px 10px 0px;"><a href="{% url 'game' game.pk %}" style="text-decoration: none; color: inherit;">{{ game.title }}</a></h2>
+		{% if game.short %}{{ game.short }}{% endif %}
+	<p class="pull-right" style="padding: 0px; margin: 0px;">
+	{% for tag in game.tags.all %}
+		<span class="label">{{tag}}</span>
+	{% endfor %}
+	</p>
+	</div>
+</div>
+{% endfor %}
+
+{% for comment in comp.comments.all %}
+<div class="well" style="margin-left: 10px; padding: 10px;">
+	<div class="pull-right">
+		<small>By {{ comment.reporter.name }} on {{ comment.created_date }}</small>
+		<br/>
+		<div align="right">
+			<small>rating</small>
+		</div>
+	</div>
+	<h3 style="margin: 0px;">{{ comment.title }}</h3>
+	{{ comment.description | safe }}
+</div>
+{% endfor %}
+
+{% endblock %}

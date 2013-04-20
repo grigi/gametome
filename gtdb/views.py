@@ -25,3 +25,15 @@ def game(request, game_id):
     return render(request, 'game_item.html', {
         'game': Game.objects.get(pk=game_id)
     })
+
+def companies(request):
+    ct = ContentType.objects.get(model='company')
+    comp_list = Company.objects.filter(content_type=ct).order_by('-created_date').prefetch_related('comments')
+    return render(request, 'companies.html', {
+        'comp_list': comp_list[:20],
+    })
+
+def company(request, comp_id):
+    return render(request, 'company_item.html', {
+        'comp': Company.objects.get(pk=comp_id)
+    })

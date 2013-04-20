@@ -3,9 +3,8 @@
 {% block head_title %}Profile{% endblock %}
 
 {% block content %}
-<h1>Profile</h1>
-
-<p>Your profile:</p>
+<div class="pull-right">
+<p>Manage your profile:</p>
 <ul>
 <li><a href="{% url 'account_email' %}"><i class="icon-envelope"></i> Manage E-mail</a></li>
 <li><a href="{% url 'socialaccount_connections' %}"><i class="icon-comment"></i> Account Connections</a></li> 
@@ -14,4 +13,19 @@
 	{% endif %}
 <li><a href="{% url 'account_logout' %}"><i class="icon-off"></i> Sign Out</a></li>
 </ul>
+</div>
+
+<div class="media">
+	<img class="media-object pull-left" style="width: 64px; height: 64px;" src="/static/img/glyphicons-halflings.png" data-src="holder.js/64x64">
+	<div class="media-body">
+		<blockquote>
+			<h1 class="media-heading">{{ user.name }}</h1>
+			<small>Your profile title.</small>
+		</blockquote>
+	</div>
+</div>
+
+You have no profile configured.
+
+
 {% endblock %}

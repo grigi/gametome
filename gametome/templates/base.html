@@ -50,6 +50,7 @@
         		<ul class="nav">
         			<li class="divider-vertical"></li>
           			<li><a href="{% url 'games' %}">Games</a></li>
+          			<li><a href="{% url 'companies' %}">Companies</a></li>
 			        {% if user.is_authenticated %}
 			        <li class="divider-vertical"></li>
         			<li><a href="{% url 'profile' %}"><i class="icon-home"></i> Profile</a></li>
@@ -79,9 +80,7 @@
 <div role="main">
   	<div class="row-fluid">
   		<div class="span8 offset2">
-			{% block body %}
-	      	<div class="hero-unit">{% block content %}{% endblock %}</div>
-			{% endblock %}
+			{% block content %}{% endblock %}
   		</div>
 </div>
 </div>

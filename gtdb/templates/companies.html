@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block head_title %}Companies{% endblock %}
+
+{% block content %}
+<h1 align="center">Companies</h1>
+
+{% for comp in comp_list %}
+<div class="navbar">
+	<div class="navbar-inner">
+		<div class="container pull-right"><small>
+			By {{ comp.reporter.name }} on {{ comp.created_date }}
+			<br/>
+			<div align="right">rating</div>
+		</small></div>
+		<h2 style="margin: 10px 10px 10px 0px;"><a href="{% url 'company' comp.pk %}" style="text-decoration: none; color: inherit;">{{ comp.title }}</a></h2>
+		{% if comp.short %}{{ comp.short }}{% endif %}
+	</div>
+	<p class="pull-right" style="padding: 0px; margin: 0px;">
+	{% for tag in comp.tags.all %}
+		<span class="label">{{tag}}</span>
+	{% endfor %}
+	</p>
+</div>
+{{ comp.description | safe }}
+<br/>
+[<a href="{% url 'company' comp.pk %}">Read more... {{ comp.comments.count }} Comments</a>]
+<br/>
+<br/>
+{% endfor %}
+
+{% endblock %}

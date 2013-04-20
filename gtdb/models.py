@@ -21,7 +21,7 @@ class Entity(models.Model):
     description = models.TextField(null=True, blank=True)
     created_date = models.DateTimeField(auto_now_add=True, blank=True)
     updated_date = models.DateTimeField(auto_now=True, blank=True)
-    reporter = models.ForeignKey(User)
+    reporter = models.ForeignKey(User, null=True, blank=True)
     content_type = models.ForeignKey(ContentType)
     
     tags = TaggableManager()
@@ -57,6 +57,13 @@ class Comment(Entity):
     entity = models.ForeignKey(Entity, related_name='comments')
     parent = models.ForeignKey('self', related_name='children', null=True, blank=True)
 
+class Company(Entity):
+    class Meta:
+        proxy = True
+
+    def get_absolute_url(self):
+        return "/company/%d/" % (self.pk)
+
 class News(Entity):
     class Meta:
         proxy = True
@@ -67,6 +74,7 @@ class News(Entity):
 class Game(Entity):
     cost = models.CharField(max_length=255)
     version = models.CharField(max_length=255)
+    company = models.ForeignKey(Company, related_name='games')
 
     def get_absolute_url(self):
         return "/games/%d/" % (self.pk)
@@ -75,12 +83,6 @@ class Review(Entity):
     entity = models.ForeignKey(Entity, related_name='reviews')
     score = models.IntegerField()
 
-class Company(Entity):
-    class Meta:
-        proxy = True
-
-    def get_absolute_url(self):
-        return "/company/%d/" % (self.pk)
 
 
     

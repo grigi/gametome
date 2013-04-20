@@ -16,14 +16,18 @@ sanhtml = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
 
 def user_factory(username):
     if username is None:
-        username = 'Unknown'
+        username = 'Anonymous'
     (user, created) = User.objects.get_or_create(username=username)
     return user
 
-def company_factory(compname):
-    if compname is None:
-        return None
-    (company, created) = Company.objects.get_or_create(title=compname, defaults={'created_date': now(), 'updated_date': now()})
+def company_factory(compname, author):
+    if author is None or author == '':
+        author = 'Unspecified'
+    if compname is None or compname == '':
+        compname = author
+    (company, created) = Company.objects.get_or_create(title=compname, defaults={'created_date': now(), 'updated_date': now(), 'description': ''})
+    company.description += "%s\n" % (author)
+    company.save()
     return company    
 
 def iter_fields_and_do(Clazz, field_name, func):
@@ -93,6 +97,7 @@ class Command(BaseCommand):
                 updated_date = g['timestamp'] if g['timestamp'] else '%sT00:00:00+00:00' % (g['date_sumbitted']),
                 cost = g['cost'],
                 version = g['version'],
+                company = company_factory(g['company'], g['author']),
             )
             for c in g['capabilities']:
                 game.tags.add(c)

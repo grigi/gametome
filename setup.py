@@ -24,6 +24,7 @@ setup(
         'html5lib',
         'django-haystack',
         'Whoosh',
+        'django-threadedcomments >=0.9',
     ],
     dependency_links = [
     ],
