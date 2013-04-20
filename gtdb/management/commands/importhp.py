@@ -9,6 +9,8 @@ import re
 import html5lib
 from html5lib import sanitizer
 from django.utils.timezone import now
+from django.db.models import Q
+import urlparse
 
 sanhtml = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
 
@@ -37,11 +39,17 @@ def company_factory(compname, author):
         company = Company.objects.create(title=compname, created_date=now(), updated_date=now(), description="%s\n" % (author))
     return company
 
+def find_game(gamename):
+    if gamename:
+        games = Game.objects.filter(title__iexact=gamename)
+        if len(games) >= 1:
+            return games[0]
+    return None
+
+def import_image(imagename):
+    pass
+
 def sanitize_desc(desc):
-    # Replace the following with a link to the real game:
-    #'http://www.happypenguin.org/show?Fashion%20Cents%20Deluxe'
-    # Oh, this probably needs to be done at the end, because it may, or may not exist yet.
-    
     desc = sanhtml.parse(desc).toxml()[19:][:-14]
     return desc
 
@@ -96,6 +104,8 @@ class Command(BaseCommand):
         turn_off_auto_now_add(News, 'created_date')
         turn_off_auto_now(Comment, 'updated_date')
         turn_off_auto_now_add(Comment, 'created_date')'''
+        
+        print("Importing Games:")
         
         doc = json.load(open('%s/data/games.json' % (settings.PROJECT_ROOT)))
         for g in doc[:200]:
@@ -166,6 +176,9 @@ class Command(BaseCommand):
                 sys.stdout.flush()
                 count=0
                 transaction.commit()
+
+        print('')
+        print("Importing News:")
                 
         doc = json.load(open('%s/data/news.json' % (settings.PROJECT_ROOT)))
         for n in doc[:200]:
@@ -193,6 +206,12 @@ class Command(BaseCommand):
                 created_date = n['timestamp'],
                 updated_date = n['timestamp']
             )
+            
+            game = find_game(n['game'])
+            if game:
+                # create relation to game
+                pass
+
             if n['newstype'] != 'default':
                 news.tags.add(n['newstype'])
             if cat:
@@ -219,5 +238,52 @@ class Command(BaseCommand):
                 count=0
                 transaction.commit()
 
-        print('')                
+        print('')
+        print('Relinking urls:')        
+        transaction.commit()
+        
+        count=0
+        count_g=0
+        count_gs=0
+        count_i=0
+        count_is=0
+        torep = Entity.objects.filter(Q(description__contains='happypenguin.org/') | Q(description__contains='/images/'))
+        for ent in torep:
+            count += 1
+            origdesc = '%s' % (ent.description)
+            newdesc = ''
+            old_last=0            
+
+            for m in re.finditer(r'[^\'" ]*happypenguin\.org/(.*?)show[\?=]([^\'" ]*)', ent.description):
+                count_g += 1
+                gamename = urlparse.unquote(m.group(2))
+                game = find_game(gamename)
+                if game:
+                    #print 'g', m.start(), m.end(), ent.description[int(m.start()):int(m.end())]
+                    count_gs += 1
+                    newdesc += ent.description[old_last:int(m.start())-1] + '"' + game.get_absolute_url() + '"'
+                    old_last = int(m.end())+1
+            
+            if len(newdesc) > 0:
+                newdesc += ent.description[old_last:]
+                ent.description = newdesc
+                    
+            for m in re.finditer(r'[^\'" ]*/images/([^\'" ]*)', ent.description):
+                count_i += 1
+                #print 'i', m.start(), m.end(), ent.description[int(m.start()):int(m.end())]
+                image = urlparse.unquote(m.group(1))
+                # star.gif is a special case -> need to find these and change import rules to cleanup
+
+            if len(newdesc) > 0:
+                newdesc += ent.description[old_last:]
+                ent.description = newdesc
+            
+            if origdesc != ent.description:
+                #print '<', origdesc
+                #print '>', ent.description
+                ent.save()
+
+        print('%d objects affected' % (count))
+        print('%d/%d Game URLs relinked' % (count_gs, count_g))
+        print('%d/%d Images imported' % (count_is, count_i))
         transaction.commit()

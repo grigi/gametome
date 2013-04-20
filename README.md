@@ -27,11 +27,11 @@ What currently works:
         * Licence and capabilities is imported as tags
         * description is run through an HTML sanitizer
         * ratings are imported as reviews with no body _(Not sure about this, should reviews and ratings be separate entities, or ratings as reviews?)_
+        * Link to Company/Author
+        * Includes 'other' if not empty
     * Not Handling:
         * Image importing
         * approvals
-        * company/author (want to create a new page for that)
-        * 'other' -> not even sure what this is
 * Import of legacy News records:
     * Handling:
         * headline,news,user,timestamp
@@ -49,10 +49,15 @@ What currently works:
         * Removing empty comments, and attaching children to parent
     * Not Handling:
         * spam detection
-* Implementing Game & News pages and comments (not rendering threaded yet, or counting threaded comments yet either)
-* Fulltext search
-    * Using Haystack
-    * Plan to use a proper indexer, such as Solr or Xapian
+* Import of Company/Author, with links to games
+* URL rewriting (games/news/comments):
+    * Handling:
+    	* Detects urls that links to games & Rewriting of valid urls that link to a game
+    	* Detect image urls
+    * Not Handling:
+        * Handling of images and/or thumbnails
+* News, Game, and Company pages with comments (comments not threaded yet)
+* Fulltext search Using Haystack & Whoosh
 
 What still needs to be done:
 
@@ -62,7 +67,6 @@ What still needs to be done:
 * Spam detection
 * I18N and L10N
 * Live data editing for your own content (or if you got given proxy rights) to make maintaining data easier
-* Author/Company page
 * Finishing the theme
 * Usability testing
 
