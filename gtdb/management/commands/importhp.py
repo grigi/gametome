@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.contrib.auth.models import User
-from gtdb.models import Entity, Game, News, Comment, Review, URLlink, Company
+from gtdb.models import Entity, Game, News, Comment, Review, URLlink, Company, Relation
 import json
 from django.db import transaction
 import sys
@@ -196,7 +196,7 @@ class Command(BaseCommand):
             except:
                 short = None
             
-            desc = re.sub(r'^<a href.*Category:.*Rating.*Description[^\n]*', '', desc, flags=re.MULTILINE|re.DOTALL)
+            desc = re.sub(r'^.*Category:.*Rating.*Description[^\n]*', '', desc, flags=re.MULTILINE|re.DOTALL)
             
             news = News.objects.create(
                 title=n['headline'],
@@ -209,8 +209,13 @@ class Command(BaseCommand):
             
             game = find_game(n['game'])
             if game:
-                # create relation to game
-                pass
+                # create relation to game of type 'news'
+                Relation.objects.create(
+                    type='news',
+                    a=news,
+                    b=game,
+                )
+                print news.pk
 
             if n['newstype'] != 'default':
                 news.tags.add(n['newstype'])
@@ -263,7 +268,13 @@ class Command(BaseCommand):
                     count_gs += 1
                     newdesc += ent.description[old_last:int(m.start())-1] + '"' + game.get_absolute_url() + '"'
                     old_last = int(m.end())+1
-            
+                    # create relation to game of type 'linked'
+                    Relation.objects.create(
+                        type='linked',
+                        a=ent.get_real(),
+                        b=game,
+                    )
+                
             if len(newdesc) > 0:
                 newdesc += ent.description[old_last:]
                 ent.description = newdesc
@@ -272,7 +283,6 @@ class Command(BaseCommand):
                 count_i += 1
                 #print 'i', m.start(), m.end(), ent.description[int(m.start()):int(m.end())]
                 image = urlparse.unquote(m.group(1))
-                # star.gif is a special case -> need to find these and change import rules to cleanup
 
             if len(newdesc) > 0:
                 newdesc += ent.description[old_last:]

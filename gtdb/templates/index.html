@@ -32,6 +32,16 @@
 	</p>
 </div>
 {{ news.description | safe }}
+
+{% if news.related_from.all %}
+<h4>Related items:</h4>
+<ul>
+	{% for rel in news.related_from.all %}
+		<li><a href="{{ rel.b.get_real.get_absolute_url }}">{{ rel.b.title}}</a></li>
+	{% endfor %}
+</ul>
+{% endif %}
+
 <br/>
 [<a href="{% url 'news' news.pk %}">Read more... {{ news.comments.count }} Comments</a>]
 <br/>

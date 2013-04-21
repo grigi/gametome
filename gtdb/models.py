@@ -44,8 +44,8 @@ class Entity(models.Model):
 
     
 class Relation(models.Model):
-    a = models.ForeignKey(Entity, related_name='related_to')
-    b = models.ForeignKey(Entity, related_name='related_from')
+    a = models.ForeignKey(Entity, related_name='related_from')
+    b = models.ForeignKey(Entity, related_name='related_to')
     type = models.CharField(max_length=50)
 
 class URLlink(models.Model):

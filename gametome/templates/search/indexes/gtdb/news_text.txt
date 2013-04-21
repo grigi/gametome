@@ -4,6 +4,10 @@
 {{ object.reporter.name }}
 {{ object.created_date }}
 {% for tag in object.tags.all %} {{tag}}{% endfor %}
+{% for rel in object.related_from.all %}
+{{ rel.b.title }}
+{{ rel.b.short }}
+{% endfor %}
 {% for comment in object.comments.all %}
 {{ comment.title }}
 {{ comment.description | safe }}

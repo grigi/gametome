@@ -22,6 +22,25 @@
 	</p>
 </div>
 {{ game.description | safe }}
+
+{% if game.related_to.all %}
+<h4>Related by:</h4>
+<ul>
+	{% for rel in game.related_to.all %}
+		<li><a href="{{ rel.a.get_real.get_absolute_url }}">{{ rel.a.title }} &nbsp; &nbsp; <small>{{ rel.a.created_date }}</small></a></li>
+	{% endfor %}
+</ul>
+{% endif %}
+
+{% if game.related_from.all %}
+<h4>Related to:</h4>
+<ul>
+	{% for rel in game.related_from.all %}
+		<li><a href="{{ rel.b.get_real.get_absolute_url }}">{{ rel.b.title }}</a></li>
+	{% endfor %}
+</ul>
+{% endif %}
+
 <br/>
 {% for comment in game.comments.all %}
 <div class="well" style="margin-left: 10px; padding: 10px;">
