@@ -10,11 +10,11 @@ TEMPLATE_DEBUG = DEBUG
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', 
-        'NAME': normpath(join(PROJECT_ROOT, 'default.db')),
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2', 
+        'NAME': 'gametome',
+        'USER': 'gametome',
+        'PASSWORD': 'gametome',
+        'HOST': '127.0.0.1',
         'PORT': '',
     }
 }
