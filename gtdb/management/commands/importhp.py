@@ -13,7 +13,9 @@ from django.db.models import Q
 try:
     import urlparse
 except ImportError:
+    # Python 3
     import urllib.parse as urlparse
+    unicode = str
 
 sanhtml = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
 
@@ -34,7 +36,7 @@ def user_factory(username):
     if username is None:
         username = 'Anonymous'
     try:
-        user = User.objects.get(username__iexact=username)
+        user = User.objects.get(username__iexact=unicode(username))
     except User.DoesNotExist:
         user = User.objects.create(username=username)
         global count_user
@@ -47,7 +49,7 @@ def company_factory(compname, author):
     if compname is None or compname == '' or compname == '-' or compname.lower() == 'none':
         compname = author
     try:
-        company = Company.objects.filter(title__iexact=compname)[0]
+        company = Company.objects.filter(title__iexact=unicode(compname))[0]
         if company.description.lower().find(author.lower()) == -1:
             company.description += "%s\n" % (author)
             company.save()

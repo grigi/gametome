@@ -16,8 +16,8 @@ User.name = prettyname
 # Create your models here.
 @python_2_unicode_compatible
 class Entity(models.Model):
-    title = models.CharField(max_length=255)
-    short = models.CharField(max_length=255, null=True, blank=True)
+    title = models.CharField(max_length=1023)
+    short = models.CharField(max_length=1023, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     created_date = models.DateTimeField(auto_now_add=True, blank=True)
     updated_date = models.DateTimeField(auto_now=True, blank=True)
@@ -50,8 +50,8 @@ class Relation(models.Model):
 
 class URLlink(models.Model):
     entity = models.ForeignKey(Entity, related_name='urls')
-    desc = models.CharField(max_length=255)
-    url = models.CharField(max_length=255)
+    desc = models.CharField(max_length=1023)
+    url = models.CharField(max_length=1023)
 
 class Comment(Entity):
     entity = models.ForeignKey(Entity, related_name='comments')
@@ -72,8 +72,8 @@ class News(Entity):
         return "/news/%d/" % (self.pk)
 
 class Game(Entity):
-    cost = models.CharField(max_length=255, null=True, blank=True)
-    version = models.CharField(max_length=255, null=True, blank=True)
+    cost = models.CharField(max_length=1023, null=True, blank=True)
+    version = models.CharField(max_length=1023, null=True, blank=True)
     company = models.ForeignKey(Company, related_name='games')
 
     def get_absolute_url(self):
