@@ -33,14 +33,13 @@ What currently works:
         * Image importing
         * approvals
 * Import of legacy News records:
-    * Handling:
-        * headline,news,user,timestamp
-        * extract category and short description from html blob
-        * removed category/description/rating from html blob
-        * run news through HTML sanitizer
-        * newstype and category imported as tags
-    * Not Handling:
-        * link to game
+    * Done!
+    * headline,news,user,timestamp
+    * extract category and short description from html blob
+    * removed category/description/rating from html blob
+    * run news through HTML sanitizer
+    * newstype and category imported as tags
+    * link to game (if game exists)
 * Import of legacy Comments:
     * Handling:  
         * subjext, comment, user, timestamp

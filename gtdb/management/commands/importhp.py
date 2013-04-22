@@ -10,9 +10,18 @@ import html5lib
 from html5lib import sanitizer
 from django.utils.timezone import now
 from django.db.models import Q
-import urlparse
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse
 
 sanhtml = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
+
+count_game = 0
+count_news = 0
+count_comment = 0
+count_company = 0
+count_user = 0
 
 #IMP_DATE = '2013-04-01T00:00:00+00:00'
 
@@ -23,6 +32,8 @@ def user_factory(username):
         user = User.objects.get(username__iexact=username)
     except User.DoesNotExist:
         user = User.objects.create(username=username)
+        global count_user
+        count_user += 1
     return user
 
 def company_factory(compname, author):
@@ -37,6 +48,8 @@ def company_factory(compname, author):
             company.save()
     except Company.DoesNotExist:
         company = Company.objects.create(title=compname, created_date=now(), updated_date=now(), description="%s\n" % (author))
+        global count_company
+        count_company += 1
     return company
 
 def find_game(gamename):
@@ -80,6 +93,8 @@ def sub_comments(game,parent,dic):
                 reporter = user_factory(l['user']),
                 parent = parent
             )
+            global count_comment
+            count_comment += 1
             sub_comments(game, com, l['comments'])
         else:
             sub_comments(game, parent, l['comments'])
@@ -93,7 +108,14 @@ class Command(BaseCommand):
         # Disable auto transactions - increase import performance
         transaction.enter_transaction_management(managed=True)
         transaction.managed(flag=True)
-        count = 0
+        count=0
+        global count_game
+        global count_news
+        global count_comment
+        global count_company
+        global count_user
+        count_newsgame = 0
+        count_newsgametot = 0
 
         # Hack to let us set auto-dates manualy for import
         turn_off_auto_now(Entity, 'updated_date')
@@ -128,6 +150,7 @@ class Command(BaseCommand):
                 version = g['version'],
                 company = company_factory(g['company'], g['author']),
             )
+            count_game += 1
             for c in g['capabilities']:
                 game.tags.add(c)
             if g['license'] != 'unknown':
@@ -144,6 +167,7 @@ class Command(BaseCommand):
                         title = l['subject'],
                         reporter = user_factory(l['user'])
                     )
+                    count_comment += 1
                     sub_comments(game, com, l['comments'])
                 else:
                     sub_comments(game, None, l['comments'])
@@ -177,14 +201,19 @@ class Command(BaseCommand):
                 count=0
                 transaction.commit()
 
+        count_comment_games = count_comment
         print('')
+        print("%d Games imported" % (count_game))
+        print("%d Comments imported" % (count_comment))
+        print("%d Companies/Authors imported" % (count_company))
+        print("%d Users imported" % (count_user))
         print("Importing News:")
                 
         doc = json.load(open('%s/data/news.json' % (settings.PROJECT_ROOT)))
         for n in doc[:200]:
             #print(json.dumps(n,indent=4,sort_keys=True))
             
-            # Not handling: game
+            # Handling everything :-)
 
             desc = n['news']
             try:
@@ -206,7 +235,7 @@ class Command(BaseCommand):
                 created_date = n['timestamp'],
                 updated_date = n['timestamp']
             )
-            
+            count_news += 1
             game = find_game(n['game'])
             if game:
                 # create relation to game of type 'news'
@@ -215,7 +244,9 @@ class Command(BaseCommand):
                     a=news,
                     b=game,
                 )
-                print news.pk
+                count_newsgame += 1
+            if n['game'] is not None and len(n['game']) > 0:
+                count_newsgametot += 1
 
             if n['newstype'] != 'default':
                 news.tags.add(n['newstype'])
@@ -232,6 +263,7 @@ class Command(BaseCommand):
                         title = l['subject'],
                         reporter = user_factory(l['user'])
                     )
+                    count_comment += 1
                     sub_comments(news, com, l['comments'])
                 else:
                     sub_comments(news, None, l['comments'])
@@ -244,17 +276,20 @@ class Command(BaseCommand):
                 transaction.commit()
 
         print('')
-        print('Relinking urls:')        
+        print("%d News imported" % (count_news))
+        print("%d Comments imported" % (count_comment - count_comment_games))
+        print("%d/%d Games linked to" % (count_newsgame, count_newsgametot))
+        print('Relinking urls:')
         transaction.commit()
         
-        count=0
+        count_uf=0
         count_g=0
         count_gs=0
         count_i=0
         count_is=0
         torep = Entity.objects.filter(Q(description__contains='happypenguin.org/') | Q(description__contains='/images/'))
         for ent in torep:
-            count += 1
+            count_uf += 1
             origdesc = '%s' % (ent.description)
             newdesc = ''
             old_last=0            
@@ -293,7 +328,7 @@ class Command(BaseCommand):
                 #print '>', ent.description
                 ent.save()
 
-        print('%d objects affected' % (count))
+        print('%d objects affected' % (count_uf))
         print('%d/%d Game URLs relinked' % (count_gs, count_g))
         print('%d/%d Images imported' % (count_is, count_i))
         transaction.commit()
