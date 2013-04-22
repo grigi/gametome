@@ -25,6 +25,11 @@ count_user = 0
 
 #IMP_DATE = '2013-04-01T00:00:00+00:00'
 
+def nlen(obj):
+    if obj is None:
+        return 0
+    return len(obj)
+
 def user_factory(username):
     if username is None:
         username = 'Anonymous'
@@ -37,16 +42,16 @@ def user_factory(username):
     return user
 
 def company_factory(compname, author):
-    if author is None or author == '':
+    if author is None or author == '' or author == '-' or author.lower() == 'none':
         author = 'Unspecified'
-    if compname is None or compname == '':
+    if compname is None or compname == '' or compname == '-' or compname.lower() == 'none':
         compname = author
     try:
-        company = Company.objects.get(title__iexact=compname)
+        company = Company.objects.filter(title__iexact=compname)[0]
         if company.description.lower().find(author.lower()) == -1:
             company.description += "%s\n" % (author)
             company.save()
-    except Company.DoesNotExist:
+    except IndexError:
         company = Company.objects.create(title=compname, created_date=now(), updated_date=now(), description="%s\n" % (author))
         global count_company
         count_company += 1
@@ -55,7 +60,7 @@ def company_factory(compname, author):
 def find_game(gamename):
     if gamename:
         games = Game.objects.filter(title__iexact=gamename)
-        if len(games) >= 1:
+        if nlen(games) >= 1:
             return games[0]
     return None
 
@@ -83,7 +88,7 @@ def turn_off_auto_now_add(Clazz, field_name):
 def sub_comments(game,parent,dic):
     for l in dic:
         desc = sanitize_desc(l['comment'])
-        if len(desc) > 0:
+        if nlen(desc) > 0:
             com = Comment.objects.create(
                 created_date = l['timestamp'],
                 updated_date = l['timestamp'],
@@ -130,13 +135,13 @@ class Command(BaseCommand):
         print("Importing Games:")
         
         doc = json.load(open('%s/data/games.json' % (settings.PROJECT_ROOT)))
-        for g in doc[:200]:
+        for g in doc:#[:200]:
             #print(json.dumps(g,indent=4,sort_keys=True))
             
             # Not handling: screenshot, approved_by, approved_date
             
             desc = g['description']
-            if len(g['other']) > 2:
+            if nlen(g['other']) > 2:
                 desc += "<br/><h4>Other information:</h4>" + g['other']
             
             game = Game.objects.create(
@@ -158,7 +163,7 @@ class Command(BaseCommand):
             
             for l in g['comments']:
                 desc = sanitize_desc(l['comment'])
-                if len(desc) > 0:
+                if nlen(desc) > 0:
                     com = Comment.objects.create(
                         created_date = l['timestamp'],
                         updated_date = l['timestamp'],
@@ -210,7 +215,7 @@ class Command(BaseCommand):
         print("Importing News:")
                 
         doc = json.load(open('%s/data/news.json' % (settings.PROJECT_ROOT)))
-        for n in doc[:200]:
+        for n in doc:#[:200]:
             #print(json.dumps(n,indent=4,sort_keys=True))
             
             # Handling everything :-)
@@ -245,7 +250,7 @@ class Command(BaseCommand):
                     b=game,
                 )
                 count_newsgame += 1
-            if n['game'] is not None and len(n['game']) > 0:
+            if n['game'] is not None and nlen(n['game']) > 0:
                 count_newsgametot += 1
 
             if n['newstype'] != 'default':
@@ -254,7 +259,7 @@ class Command(BaseCommand):
                 news.tags.add(cat)
             for l in n['comments']:
                 desc = sanitize_desc(l['comment'])
-                if len(desc) > 0:
+                if nlen(desc) > 0:
                     com = Comment.objects.create(
                         created_date = l['timestamp'],
                         updated_date = l['timestamp'],
@@ -310,7 +315,7 @@ class Command(BaseCommand):
                         b=game,
                     )
                 
-            if len(newdesc) > 0:
+            if nlen(newdesc) > 0:
                 newdesc += ent.description[old_last:]
                 ent.description = newdesc
                     
@@ -319,7 +324,7 @@ class Command(BaseCommand):
                 #print 'i', m.start(), m.end(), ent.description[int(m.start()):int(m.end())]
                 image = urlparse.unquote(m.group(1))
 
-            if len(newdesc) > 0:
+            if nlen(newdesc) > 0:
                 newdesc += ent.description[old_last:]
                 ent.description = newdesc
             

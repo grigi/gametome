@@ -72,8 +72,8 @@ class News(Entity):
         return "/news/%d/" % (self.pk)
 
 class Game(Entity):
-    cost = models.CharField(max_length=255)
-    version = models.CharField(max_length=255)
+    cost = models.CharField(max_length=255, null=True, blank=True)
+    version = models.CharField(max_length=255, null=True, blank=True)
     company = models.ForeignKey(Company, related_name='games')
 
     def get_absolute_url(self):
