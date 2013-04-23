@@ -9,7 +9,7 @@ RESULTS_PER_PAGE = getattr(settings, 'RESULTS_PER_PAGE', 20)
 
 def index(request):
     ct = ContentType.objects.get(model='news')
-    news_list = News.objects.filter(content_type=ct).order_by('-created_date').prefetch_related('comments')
+    news_list = News.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter').prefetch_related('comments', 'related_to', 'related_to__a', 'related_to__a__content_type', 'related_from', 'related_from__b', 'related_from__b__content_type')
     
     paginator = Paginator(news_list, RESULTS_PER_PAGE)
     page = request.GET.get('page')
@@ -25,12 +25,13 @@ def index(request):
     })
 
 def news(request, news_id):
+    news = News.objects.filter(pk=news_id).select_related('reporter').prefetch_related('comments','comments__reporter', 'related_to', 'related_to__a', 'related_to__a__content_type', 'related_from', 'related_from__b', 'related_from__b__content_type')
     return render(request, 'news_item.html', {
-        'news': News.objects.get(pk=news_id)
+        'news': news[0],
     })
 
 def games(request):
-    games_list = Game.objects.all().order_by('-created_date').prefetch_related('comments')
+    games_list = Game.objects.all().order_by('-created_date').select_related('reporter').prefetch_related('comments')
 
     paginator = Paginator(games_list, RESULTS_PER_PAGE)
     page = request.GET.get('page')
@@ -46,13 +47,14 @@ def games(request):
     })
 
 def game(request, game_id):
+    game = Game.objects.filter(pk=game_id).select_related('reporter').prefetch_related('comments','comments__reporter', 'related_to__a', 'related_to__a__content_type', 'related_from__b', 'related_from__b__content_type')
     return render(request, 'game_item.html', {
-        'game': Game.objects.get(pk=game_id)
+        'game': game[0],
     })
 
 def companies(request):
     ct = ContentType.objects.get(model='company')
-    comp_list = Company.objects.filter(content_type=ct).order_by('-created_date').prefetch_related('comments')
+    comp_list = Company.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter').prefetch_related('comments')
 
     paginator = Paginator(comp_list, RESULTS_PER_PAGE)
     page = request.GET.get('page')
@@ -68,6 +70,7 @@ def companies(request):
     })
 
 def company(request, comp_id):
+    comp = Company.objects.filter(pk=comp_id).select_related('reporter').prefetch_related('comments','comments__reporter', 'games__reporter')
     return render(request, 'company_item.html', {
-        'comp': Company.objects.get(pk=comp_id)
+        'comp': comp[0]
     })
