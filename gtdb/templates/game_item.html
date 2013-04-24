@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load render from desc_render %}
 
 {% block head_title %}Game - {{ game.title }}{% endblock %}
 
@@ -21,7 +22,7 @@
 	{% endfor %}
 	</p>
 </div>
-{{ game.description | safe }}
+{{ game.description | render }}
 
 {% if game.related_to.all %}
 <h4>Related by:</h4>
@@ -52,7 +53,7 @@
 		</div>
 	</div>
 	<h3 style="margin: 0px;">{{ comment.title }}</h3>
-	{{ comment.description | safe }}
+	{{ comment.description | render }}
 </div>
 {% endfor %}
 

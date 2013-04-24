@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load render from desc_render %}
 
 {% block head_title %}News - {{ news.title }}{% endblock %}
 
@@ -20,7 +21,7 @@
 	{% endfor %}
 	</p>
 </div>
-{{ news.description | safe }}
+{{ news.description | render }}
 
 {% if news.related_from.all %}
 <h4>Related items:</h4>
@@ -42,7 +43,7 @@
 		</div>
 	</div>
 	<h3 style="margin: 0px;">{{ comment.title }}</h3>
-	{{ comment.description | safe }}
+	{{ comment.description | render }}
 </div>
 {% endfor %}
 

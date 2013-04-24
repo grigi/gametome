@@ -92,6 +92,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'pybb.middleware.PybbMiddleware',
 )
 
 ROOT_URLCONF = 'gametome.urls'
@@ -120,6 +121,11 @@ INSTALLED_APPS = (
     'taggit',
     'ckeditor',
     
+    'pybb',
+    #'pytils',
+    'sorl.thumbnail',
+    'pure_pagination',
+    
     # Allauth
     'allauth',
     'allauth.account',
@@ -139,6 +145,8 @@ INSTALLED_APPS = (
     #'gtdb2',
     
 )
+
+AUTH_PROFILE_MODULE = 'pybb.Profile'
 
 RESULTS_PER_PAGE = 20
 
@@ -174,7 +182,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.core.context_processors.request",
     "django.contrib.messages.context_processors.messages",
-
+    'pybb.context_processors.processor',
     "allauth.account.context_processors.account",
     "allauth.socialaccount.context_processors.socialaccount",
 )

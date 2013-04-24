@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load render from desc_render %}
 
 {% block head_title %}Company - {{ comp.title }}{% endblock %}
 
@@ -20,7 +21,7 @@
 	{% endfor %}
 	</p>
 </div>
-{{ comp.description | safe }}
+{{ comp.description | render }}
 <br/>
 <h2>Games:</h2>
 {% for game in comp.games.all %}
@@ -52,7 +53,7 @@
 		</div>
 	</div>
 	<h3 style="margin: 0px;">{{ comment.title }}</h3>
-	{{ comment.description | safe }}
+	{{ comment.description | render }}
 </div>
 {% endfor %}
 

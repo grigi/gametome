@@ -6,10 +6,12 @@ import json
 from django.db import transaction
 import sys
 import re
-import html5lib
-from html5lib import sanitizer
+#import html5lib
+#from html5lib import sanitizer
 from django.utils.timezone import now
 from django.db.models import Q
+from html2bbcode.parser import HTML2BBCode
+from django.utils.html import urlize
 try:
     import urlparse
 except ImportError:
@@ -17,7 +19,8 @@ except ImportError:
     import urllib.parse as urlparse
     unicode = str
 
-sanhtml = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
+#sanhtml = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
+bbparser = HTML2BBCode()
 
 count_game = 0
 count_news = 0
@@ -70,8 +73,14 @@ def import_image(imagename):
     pass
 
 def sanitize_desc(desc):
-    desc = sanhtml.parse(desc).toxml()[19:][:-14]
-    return desc
+    desc = re.sub(r'>\s+<', '><', desc)
+    desc = re.sub(r'\s*<[Bb][Rr]/?>\s*', '<br>', desc)
+    desc = re.sub(r'\s+', ' ', desc)
+    desc = re.sub(r'</[Pp]>', '', desc)
+    desc = re.sub(r'<[Pp]>', '\n\n', desc)
+    desc = re.sub(r'^\s+','', desc)
+    desc = re.sub(r'\s+$','', desc)
+    return bbparser.feed(urlize(desc)).strip()
 
 def iter_fields_and_do(Clazz, field_name, func):
     for field in Clazz._meta.local_fields:
@@ -137,7 +146,7 @@ class Command(BaseCommand):
         print("Importing Games:")
         
         doc = json.load(open('%s/data/games.json' % (settings.PROJECT_ROOT)))
-        for g in doc:#[:200]:
+        for g in doc[:200]:
             #print(json.dumps(g,indent=4,sort_keys=True))
             
             # Not handling: screenshot, approved_by, approved_date
@@ -217,7 +226,7 @@ class Command(BaseCommand):
         print("Importing News:")
                 
         doc = json.load(open('%s/data/news.json' % (settings.PROJECT_ROOT)))
-        for n in doc:#[:200]:
+        for n in doc[:200]:
             #print(json.dumps(n,indent=4,sort_keys=True))
             
             # Handling everything :-)
@@ -301,7 +310,7 @@ class Command(BaseCommand):
             newdesc = ''
             old_last=0            
 
-            for m in re.finditer(r'[^\'" ]*happypenguin\.org/(.*?)show[\?=]([^\'" ]*)', ent.description):
+            for m in re.finditer(r'[^\'"  =]*happypenguin\.org/(.*?)show[\?=]([^\'" \]]*)', ent.description):
                 count_g += 1
                 gamename = urlparse.unquote(m.group(2))
                 game = find_game(gamename)
@@ -321,7 +330,7 @@ class Command(BaseCommand):
                 newdesc += ent.description[old_last:]
                 ent.description = newdesc
                     
-            for m in re.finditer(r'[^\'" ]*/images/([^\'" ]*)', ent.description):
+            for m in re.finditer(r'[^\'" =]*/images/([^\'" \]]*)', ent.description):
                 count_i += 1
                 #print 'i', m.start(), m.end(), ent.description[int(m.start()):int(m.end())]
                 image = urlparse.unquote(m.group(1))

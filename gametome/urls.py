@@ -21,6 +21,8 @@ urlpatterns = patterns('',
     url(r'^accounts/', include('allauth.urls')),
     # Haystack - Search
     (r'^search/', include('haystack.urls')),
+    # PyBBM
+    (r'^forum/', include('pybb.urls', namespace='pybb')),
     
     # GTDB - fallthrough
     url(r'^', include('gtdb.urls')),
