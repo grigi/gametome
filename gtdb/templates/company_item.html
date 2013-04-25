@@ -8,7 +8,7 @@
 <div class="navbar">
 	<div class="navbar-inner">
 		<div class="container pull-right"><small>
-			By {{ comp.reporter.name }} on {{ comp.created_date }}
+			By {{ comp.reporter.name }} on {{ comp.created_date|date:"SHORT_DATETIME_FORMAT" }}
 			<br/>
 			<div align="right">rating</div>
 		</small></div>
@@ -28,7 +28,7 @@
 <div class="navbar">
 	<div class="well" style="margin-left: 10px; padding: 10px;">
 		<div class="container pull-right"><small>
-			By {{ game.reporter.name }} on {{ game.created_date }}
+			By {{ game.reporter.name }} on {{ game.created_date|date:"SHORT_DATETIME_FORMAT" }}
 			<br/>
 			<div align="right">rating</div>
 		</small></div>
@@ -46,7 +46,7 @@
 {% for comment in comp.comments.all %}
 <div class="well" style="margin-left: 10px; padding: 10px;">
 	<div class="pull-right">
-		<small>By {{ comment.reporter.name }} on {{ comment.created_date }}</small>
+		<small>By {{ comment.reporter.name }} on {{ comment.created_date|date:"SHORT_DATETIME_FORMAT" }}</small>
 		<br/>
 		<div align="right">
 			<small>rating</small>

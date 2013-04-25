@@ -241,7 +241,7 @@ class Command(BaseCommand):
             except:
                 short = None
             
-            desc = re.sub(r'^.*Category:.*Rating.*Description[^\n]*', '', desc, flags=re.MULTILINE|re.DOTALL)
+            desc = re.sub(r'^.*Category:.*Description[^\n]*', '', desc, flags=re.MULTILINE|re.DOTALL)
             
             news = News.objects.create(
                 title=n['headline'],

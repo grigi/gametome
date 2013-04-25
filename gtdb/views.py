@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
 from django.conf import settings
 from .models import *
 
@@ -12,11 +12,12 @@ def index(request):
     news_list = News.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter').prefetch_related('comments', 'related_to', 'related_to__a', 'related_to__a__content_type', 'related_from', 'related_from__b', 'related_from__b__content_type')
     
     paginator = Paginator(news_list, RESULTS_PER_PAGE)
-    page = request.GET.get('page')
+    try:
+        page = int(request.GET.get('page', 1))
+    except ValueError:
+        page = 1
     try:
         news_list = paginator.page(page)
-    except PageNotAnInteger:
-        news_list = paginator.page(1)
     except EmptyPage:
         news_list = paginator.page(paginator.num_pages)
         
@@ -34,11 +35,12 @@ def games(request):
     games_list = Game.objects.all().order_by('-created_date').select_related('reporter').prefetch_related('comments')
 
     paginator = Paginator(games_list, RESULTS_PER_PAGE)
-    page = request.GET.get('page')
+    try:
+        page = int(request.GET.get('page', 1))
+    except ValueError:
+        page = 1
     try:
         games_list = paginator.page(page)
-    except PageNotAnInteger:
-        games_list = paginator.page(1)
     except EmptyPage:
         games_list = paginator.page(paginator.num_pages)
     
@@ -57,11 +59,12 @@ def companies(request):
     comp_list = Company.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter').prefetch_related('comments')
 
     paginator = Paginator(comp_list, RESULTS_PER_PAGE)
-    page = request.GET.get('page')
+    try:
+        page = int(request.GET.get('page', 1))
+    except ValueError:
+        page = 1
     try:
         comp_list = paginator.page(page)
-    except PageNotAnInteger:
-        comp_list = paginator.page(1)
     except EmptyPage:
         comp_list = paginator.page(paginator.num_pages)
     

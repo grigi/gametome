@@ -8,7 +8,7 @@
 <div class="navbar">
 	<div class="navbar-inner">
 		<div class="container pull-right"><small>
-			By {{ game.reporter.name }} on {{ game.created_date }}
+			By {{ game.reporter.name }} on {{ game.created_date|date:"SHORT_DATETIME_FORMAT" }}
 			<br/>
 			<div align="right">rating</div>
 		</small></div>
@@ -24,11 +24,20 @@
 </div>
 {{ game.description | render }}
 
+{% if game.urls.all %}
+<h4>Links:</h4>
+<ul>
+	{% for rel in game.urls.all %}
+		<li><a href="{{ rel.url }}">{{ rel.desc|capfirst }}</a></li>
+	{% endfor %}
+</ul>
+{% endif %}
+
 {% if game.related_to.all %}
 <h4>Related by:</h4>
 <ul>
 	{% for rel in game.related_to.all %}
-		<li><a href="{{ rel.a.get_real.get_absolute_url }}">{{ rel.a.title }} &nbsp; &nbsp; <small>{{ rel.a.created_date }}</small></a></li>
+		<li><a href="{{ rel.a.get_real.get_absolute_url }}">{{ rel.a.title }}</a></li>
 	{% endfor %}
 </ul>
 {% endif %}
@@ -46,7 +55,7 @@
 {% for comment in game.comments.all %}
 <div class="well" style="margin-left: 10px; padding: 10px;">
 	<div class="pull-right">
-		<small>By {{ comment.reporter.name }} on {{ comment.created_date }}</small>
+		<small>By {{ comment.reporter.name }} on {{ comment.created_date|date:"SHORT_DATETIME_FORMAT" }}</small>
 		<br/>
 		<div align="right">
 			<small>rating</small>

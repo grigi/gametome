@@ -4,22 +4,13 @@
 {% block head_title %}Games{% endblock %}
 
 {% block content %}
-<small class="pull-right">
-	Page {{ games_list.number }} of {{ games_list.paginator.num_pages }}
-	{% if games_list.has_previous or games_list.has_next %}
-	    &nbsp;
-	    {% if games_list.has_previous %}<a href="?page={{ games_list.previous_page_number }}">{% endif %}&laquo; Previous{% if games_list.has_previous %}</a>{% endif %}
-	    |
-	    {% if games_list.has_next %}<a href="?page={{ games_list.next_page_number }}">{% endif %}Next &raquo;{% if games_list.has_next %}</a>{% endif %}
-	{% endif %}
-</small><br/>
 <h1 align="center">Games</h1>
 
-{% for game in games_list %}
+{% for game in games_list.object_list %}
 <div class="navbar">
 	<div class="navbar-inner">
 		<div class="container pull-right"><small>
-			By {{ game.reporter.name }} on {{ game.created_date }}
+			By {{ game.reporter.name }} on {{ game.created_date|date:"SHORT_DATETIME_FORMAT" }}
 			<br/>
 			<div align="right">rating</div>
 		</small></div>
@@ -40,15 +31,9 @@
 <br/>
 {% endfor %}
 
-<div align="center">
+<div align="right">
 	<small>
-		Page {{ games_list.number }} of {{ games_list.paginator.num_pages }}
-		{% if games_list.has_previous or games_list.has_next %}
-		    &nbsp;
-		    {% if games_list.has_previous %}<a href="?page={{ games_list.previous_page_number }}">{% endif %}&laquo; Previous{% if games_list.has_previous %}</a>{% endif %}
-		    |
-		    {% if games_list.has_next %}<a href="?page={{ games_list.next_page_number }}">{% endif %}Next &raquo;{% if games_list.has_next %}</a>{% endif %}
-		{% endif %}
+		{{ games_list.render }}
 	</small>
 </div>
 {% endblock %}
