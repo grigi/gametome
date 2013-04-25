@@ -6,8 +6,6 @@ import json
 from django.db import transaction
 import sys
 import re
-#import html5lib
-#from html5lib import sanitizer
 from django.utils.timezone import now
 from django.db.models import Q
 from html2bbcode.parser import HTML2BBCode
@@ -146,7 +144,7 @@ class Command(BaseCommand):
         print("Importing Games:")
         
         doc = json.load(open('%s/data/games.json' % (settings.PROJECT_ROOT)))
-        for g in doc[:200]:
+        for g in doc[:20]:
             #print(json.dumps(g,indent=4,sort_keys=True))
             
             # Not handling: screenshot, approved_by, approved_date
@@ -209,6 +207,13 @@ class Command(BaseCommand):
                     desc='homepage',
                     url=g['homepage']
                 )
+            
+            if g['screenshot']:
+                '''album = Album.objects.create(
+                     title=g['title']
+                )'''
+                
+                print g['screenshot']
                         
             count = count+1
             if count==100:
@@ -226,7 +231,7 @@ class Command(BaseCommand):
         print("Importing News:")
                 
         doc = json.load(open('%s/data/news.json' % (settings.PROJECT_ROOT)))
-        for n in doc[:200]:
+        for n in doc[:2]:
             #print(json.dumps(n,indent=4,sort_keys=True))
             
             # Handling everything :-)

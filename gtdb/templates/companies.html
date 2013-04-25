@@ -4,6 +4,9 @@
 {% block head_title %}Companies{% endblock %}
 
 {% block content %}
+<small class="pull-right hidden-phone">
+	{{ comp_list.render }}
+</small>
 <h1 align="center">Companies</h1>
 
 {% for comp in comp_list.object_list %}

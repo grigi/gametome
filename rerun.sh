@@ -1,6 +1,6 @@
 #!/bin/sh
 
-./manage.py sqlclear gtdb pybb taggit contenttypes auth | ./manage.py dbshell
+./manage.py sqlclear gtdb pybb taggit contenttypes auth galeria | ./manage.py dbshell
 ./manage.py syncdb --noinput
 ./manage.py importhp
 ./manage.py rebuild_index --noinput

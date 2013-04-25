@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load render from desc_render %}
+
+{% block title %}Albums{% endblock %}
+
+{% block content %}
+
+<div class="navbar">
+	<div class="navbar-inner">
+		<img class="pull-right" style="padding: 10px;" src="{{ object.available_cover.cover_image.url }}"/>
+		<h1>{{ object.title }}</h1>
+		<small>{{ object.date_added|date:"SHORT_DATETIME_FORMAT" }}</small>
+		<br/><br/>
+		<p>{{ object.description|render }}</p>
+	</div>
+</div>
+
+{% if object.children.count %}
+<h2>Sub-Albums:</h2>
+
+{% for album in object.children.all %}
+<div class="well">
+<a href="{{ album.get_absolute_url }}" style="text-decoration: none; color: inherit;">
+<div class="media">
+	{% if album.available_cover %}
+	<img class="media-object pull-left" src="{{ album.available_cover.thumbnail_image.url }}"/>
+	{% endif %}
+	<div class="media-body">
+		<blockquote>			
+			<h1 class="media-heading">{{ album.title }}</h1>
+			<small>{{ album.date_added }}</small>
+			<p>{{ album.description|render }}</p>
+		</blockquote>
+	</div>
+</div>
+</a>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if object.pictures.count %}
+
+<h2>Images:</h2>
+
+{% for picture in object.ordered_pictures %}
+<div class="well">
+<a href="{{ picture.get_absolute_url }}" style="text-decoration: none; color: inherit;">
+<div class="media">
+	<img class="media-object pull-left" src="{{ picture.thumbnail_image.url }}"/>
+	<div class="media-body">
+		<blockquote>			
+			<h1 class="media-heading">{{ picture.title }}</h1>
+			<small>{{ picture.date_added }}</small>
+			<p>{{ picture.description|render }}</p>
+		</blockquote>
+	</div>
+</div>
+</a>
+</div>
+{% endfor %}
+{% endif %}
+
+{% endblock %}

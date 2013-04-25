@@ -3,6 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.views.generic.base import TemplateView
 from django.conf import settings
 from gametome.views import profile_view
+from django.conf.urls.static import static
 
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/admin/#hooking-adminsite-instances-into-your-urlconf
 from django.contrib import admin
@@ -23,10 +24,12 @@ urlpatterns = patterns('',
     (r'^search/', include('haystack.urls')),
     # PyBBM
     (r'^forum/', include('pybb.urls', namespace='pybb')),
+    # Gallery
+    (r'^gallery/', include('galeria.urls')),
     
     # GTDB - fallthrough
     url(r'^', include('gtdb.urls')),
-)
+) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Serve static files only if DEBUG=True
 # See: https://docs.djangoproject.com/en/dev/howto/static-files/

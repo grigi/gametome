@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load render from desc_render %}
+
+{% block title %}Albums{% endblock %}
+
+{% block content %}
+
+<h1>Albums:</h1>
+{% for album in object_list %}
+<div class="well">
+<a href="{{ album.get_absolute_url }}" style="text-decoration: none; color: inherit;">
+<div class="media">
+	{% if album.available_cover %}
+	<img class="media-object pull-left" src="{{ album.available_cover.thumbnail_image.url }}"/>
+	{% endif %}
+	<div class="media-body">
+		<blockquote>			
+			<h1 class="media-heading">{{ album.title }}</h1>
+			<small>{{ album.date_added }}</small>
+			<p>{{ album.description|render }}</p>
+		</blockquote>
+	</div>
+</div>
+</a>
+</div>
+{% endfor %}
+
+{% endblock %}

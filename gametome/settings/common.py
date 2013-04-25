@@ -41,12 +41,12 @@ USE_TZ = True
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/var/www/example.com/media/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = normpath(join(PROJECT_ROOT, 'media'))
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://example.com/media/", "http://media.example.com/"
-MEDIA_URL = ''
+MEDIA_URL = '/media/'
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -125,6 +125,7 @@ INSTALLED_APPS = (
     #'pytils',
     'sorl.thumbnail',
     'pure_pagination',
+    'galeria',
     
     # Allauth
     'allauth',
@@ -158,6 +159,56 @@ HAYSTACK_SITECONF = 'gametome.search_sites'
 HAYSTACK_SEARCH_ENGINE = 'whoosh'
 HAYSTACK_WHOOSH_PATH = normpath(join(PROJECT_ROOT, 'whoosh_index'))
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = RESULTS_PER_PAGE
+
+from imagekit.processors import Anchor, ResizeToFill, ResizeToFit, Transpose, SmartResize
+GALERIA_THUMBNAIL_IMAGE_PROCESSORS = [
+    Transpose(Transpose.AUTO),
+    SmartResize(width=100, height=75)
+]
+GALERIA_DISPLAY_IMAGE_PROCESSORS = [
+    Transpose(Transpose.AUTO),
+    ResizeToFit(width=800, height=600)
+]
+GALERIA_COVER_IMAGE_PROCESSORS = [
+    Transpose(Transpose.AUTO),
+    ResizeToFit(width=256, height=256)
+]
+                  
+PYBB_SMILES = {
+    '&gt;_&lt;': 'angry.png',
+    ':.(': 'cry.png',
+    'o_O': 'eyes.png',
+    '8)': 'glasses.png',
+    ':D': 'lol.png',
+    ':(': 'sad.png',
+    ':O': 'shok.png',
+    '-_-': 'shy.png',
+    ':)': 'smile.png',
+    ':P': 'tongue.png',
+    ';)': 'wink.png'
+}
+
+ALL_SMILES = {
+    '&gt;_&lt;': 'angry.png',
+    ':.(': 'cry.png',
+    ':\'(': 'cry.png',
+    'o_O': 'eyes.png',
+    '8)': 'glasses.png',
+    '8-)': 'glasses.png',
+    ':D': 'lol.png',
+    ':(': 'sad.png',
+    ':-(': 'sad.png',
+    ':O': 'shok.png',
+    ':-O': 'shok.png',
+    '-_-': 'shy.png',
+    ':)': 'smile.png',
+    ':-)': 'smile.png',
+    '(-:': 'smile.png',
+    ':P': 'tongue.png',
+    ':-P': 'tongue.png',
+    ';)': 'wink.png',
+    ';-)': 'wink.png',
+}
 
 
 CKEDITOR_UPLOAD_PATH = "/tmp"

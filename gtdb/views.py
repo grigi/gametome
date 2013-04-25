@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
+from pure_pagination import Paginator, EmptyPage
 from django.conf import settings
 from .models import *
 

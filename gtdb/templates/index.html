@@ -4,6 +4,9 @@
 {% block head_title %}HP-TLGT{% endblock %}
 
 {% block content %}
+<small class="pull-right hidden-phone">
+	{{ news_list.render }}
+</small>
 <h1 align="center">News</h1>
 
 {% for news in news_list.object_list %}
