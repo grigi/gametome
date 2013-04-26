@@ -3,6 +3,8 @@ from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User
 from taggit.managers import TaggableManager
 from django.contrib.contenttypes.models import ContentType
+from mptt.fields import TreeForeignKey
+from galeria.models import Album
 #from django.contrib.contenttypes.generic import GenericForeignKey, GenericRelation
 
 # Monkey-patching the User object
@@ -75,6 +77,7 @@ class Game(Entity):
     cost = models.CharField(max_length=1023, null=True, blank=True)
     version = models.CharField(max_length=1023, null=True, blank=True)
     company = models.ForeignKey(Company, related_name='games')
+    album = TreeForeignKey('galeria.Album', related_name='game', null=True, blank=True)
 
     def get_absolute_url(self):
         return "/games/%d/" % (self.pk)

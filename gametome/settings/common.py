@@ -173,16 +173,18 @@ GALERIA_COVER_IMAGE_PROCESSORS = [
     Transpose(Transpose.AUTO),
     ResizeToFit(width=256, height=256)
 ]
-                  
+
+PYBB_MARKUP = 'markdown'        
 PYBB_SMILES = {
-    '&gt;_&lt;': 'angry.png',
+    'X|': 'angry.png',
     ':.(': 'cry.png',
-    'o_O': 'eyes.png',
+    'o.O': 'eyes.png',
     '8)': 'glasses.png',
+    'B)': 'geek.png',
     ':D': 'lol.png',
     ':(': 'sad.png',
     ':O': 'shok.png',
-    '-_-': 'shy.png',
+    ':|': 'shy.png',
     ':)': 'smile.png',
     ':P': 'tongue.png',
     ';)': 'wink.png'
@@ -190,17 +192,23 @@ PYBB_SMILES = {
 
 ALL_SMILES = {
     '&gt;_&lt;': 'angry.png',
+    'X|': 'angry.png',
+    'X-|': 'angry.png',
     ':.(': 'cry.png',
     ':\'(': 'cry.png',
     'o_O': 'eyes.png',
+    'o.O': 'eyes.png',
     '8)': 'glasses.png',
     '8-)': 'glasses.png',
+    'B)': 'geek.png',
+    'B-)': 'geek.png',
     ':D': 'lol.png',
     ':(': 'sad.png',
     ':-(': 'sad.png',
     ':O': 'shok.png',
     ':-O': 'shok.png',
-    '-_-': 'shy.png',
+    ':|': 'shy.png',
+    ':-|': 'shy.png',
     ':)': 'smile.png',
     ':-)': 'smile.png',
     '(-:': 'smile.png',

@@ -4,6 +4,7 @@ from pybb.defaults import urlize, render_bbcode, PYBB_SMILES_PREFIX
 from django.utils.safestring import mark_safe
 from django.conf import settings
 import re
+from markdown import Markdown
 
 ALL_SMILES = getattr(settings, 'ALL_SMILES', {})
 
@@ -19,4 +20,5 @@ def smile_it(str):
 @register.filter
 @stringfilter
 def render(value):
-    return mark_safe(urlize(smile_it(render_bbcode(value, exclude_tags=['size', 'center']))))
+    #return mark_safe(urlize(smile_it(render_bbcode(value, exclude_tags=['size', 'center']))))
+    return mark_safe(urlize(smile_it(Markdown(safe_mode='escape').convert(value))))

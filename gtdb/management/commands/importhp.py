@@ -1,15 +1,20 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.template.defaultfilters import slugify
 from gtdb.models import Entity, Game, News, Comment, Review, URLlink, Company, Relation
 import json
 from django.db import transaction
+import os
 import sys
 import re
 from django.utils.timezone import now
 from django.db.models import Q
-from html2bbcode.parser import HTML2BBCode
+#from html2bbcode.parser import HTML2BBCode
+from galeria.models import Album, Picture
+from html2text import html2text
 from django.utils.html import urlize
+from django.core.files import File
 try:
     import urlparse
 except ImportError:
@@ -18,13 +23,20 @@ except ImportError:
     unicode = str
 
 #sanhtml = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
-bbparser = HTML2BBCode()
+#bbparser = HTML2BBCode()
+
+gamealbum = Album.objects.create(
+    title = "Games",
+    slug = "games",
+    description = "Game-specific albums",
+)
 
 count_game = 0
 count_news = 0
 count_comment = 0
 count_company = 0
 count_user = 0
+count_images = 0
 
 #IMP_DATE = '2013-04-01T00:00:00+00:00'
 
@@ -67,18 +79,47 @@ def find_game(gamename):
             return games[0]
     return None
 
-def import_image(imagename):
-    pass
+def import_image(game, imagename):
+    fname = '%s/data/screenshots/%s' % (settings.PROJECT_ROOT, imagename)
+    if os.path.isfile(fname):
+        print game.title, imagename
+        album = Album.objects.create(
+            title = game.title,
+            slug = slugify(game.title),
+            description = "Screenshots for %s" % (game.title),
+            parent = gamealbum,
+        )
+        game.album = album
+        game.save()
+        pic = Picture(
+            title = game.title,
+            slug = slugify(game.title),
+            description = game.short,
+            album = album,
+        )
+        pic.original_image.save(
+            imagename,
+            File(open(fname))
+        )
+        pic.save()
+        global count_images
+        count_images += 1
+        
+    else:
+        #print "Bad:", game.title, imagename
+        pass
 
 def sanitize_desc(desc):
-    desc = re.sub(r'>\s+<', '><', desc)
+    '''desc = re.sub(r'>\s+<', '><', desc)
     desc = re.sub(r'\s*<[Bb][Rr]/?>\s*', '<br>', desc)
     desc = re.sub(r'\s+', ' ', desc)
-    desc = re.sub(r'</[Pp]>', '', desc)
+    desc = re.sub(r'</[Pp]>\s*<[Pp]>', '\n\n', desc)
     desc = re.sub(r'<[Pp]>', '\n\n', desc)
+    desc = re.sub(r'</[Pp]>', '\n\n', desc)
     desc = re.sub(r'^\s+','', desc)
     desc = re.sub(r'\s+$','', desc)
-    return bbparser.feed(urlize(desc)).strip()
+    return bbparser.feed(urlize(desc)).strip()'''
+    return html2text(urlize(desc)).strip()
 
 def iter_fields_and_do(Clazz, field_name, func):
     for field in Clazz._meta.local_fields:
@@ -128,6 +169,7 @@ class Command(BaseCommand):
         global count_comment
         global count_company
         global count_user
+        global count_images
         count_newsgame = 0
         count_newsgametot = 0
 
@@ -144,7 +186,7 @@ class Command(BaseCommand):
         print("Importing Games:")
         
         doc = json.load(open('%s/data/games.json' % (settings.PROJECT_ROOT)))
-        for g in doc[:20]:
+        for g in doc[:200]:
             #print(json.dumps(g,indent=4,sort_keys=True))
             
             # Not handling: screenshot, approved_by, approved_date
@@ -208,12 +250,7 @@ class Command(BaseCommand):
                     url=g['homepage']
                 )
             
-            if g['screenshot']:
-                '''album = Album.objects.create(
-                     title=g['title']
-                )'''
-                
-                print g['screenshot']
+            import_image(game, g['screenshot'])
                         
             count = count+1
             if count==100:
@@ -225,13 +262,14 @@ class Command(BaseCommand):
         count_comment_games = count_comment
         print('')
         print("%d Games imported" % (count_game))
+        print("%d Images imported" % (count_images))
         print("%d Comments imported" % (count_comment))
         print("%d Companies/Authors imported" % (count_company))
         print("%d Users imported" % (count_user))
         print("Importing News:")
                 
         doc = json.load(open('%s/data/news.json' % (settings.PROJECT_ROOT)))
-        for n in doc[:2]:
+        for n in doc[:200]:
             #print(json.dumps(n,indent=4,sort_keys=True))
             
             # Handling everything :-)
@@ -335,7 +373,7 @@ class Command(BaseCommand):
                 newdesc += ent.description[old_last:]
                 ent.description = newdesc
                     
-            for m in re.finditer(r'[^\'" =]*/images/([^\'" \]]*)', ent.description):
+            for m in re.finditer(r'[^\'" =\(]*/images/([^\'" \]\)]*)', ent.description):
                 count_i += 1
                 #print 'i', m.start(), m.end(), ent.description[int(m.start()):int(m.end())]
                 image = urlparse.unquote(m.group(1))

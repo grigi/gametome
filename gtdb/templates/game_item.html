@@ -22,36 +22,48 @@
 	{% endfor %}
 	</p>
 </div>
-{{ game.description | render }}
+<div class="row-fluid">
+<div class="media span12">
+	{% if game.album.available_cover %}
+	<a href="{{ game.album.get_absolute_url }}"><img class="media-object pull-right" style="margin: 10px;" src="{{ game.album.available_cover.cover_image.url }}"/></a>
+	{% endif %}		
+	<div class="media-body">
+		{{ game.description | render }}
 
-{% if game.urls.all %}
-<h4>Links:</h4>
-<ul>
-	{% for rel in game.urls.all %}
-		<li><a href="{{ rel.url }}">{{ rel.desc|capfirst }}</a></li>
-	{% endfor %}
-</ul>
-{% endif %}
+		{% if game.urls.all %}
+		<h4>Links:</h4>
+		<ul>
+			{% for rel in game.urls.all %}
+				<li><a href="{{ rel.url }}">{{ rel.desc|capfirst }}</a></li>
+			{% endfor %}
+		</ul>
+		{% endif %}
+		
+		{% if game.related_to.all %}
+		<h4>Related by:</h4>
+		<ul>
+			{% for rel in game.related_to.all %}
+				<li><a href="{{ rel.a.get_real.get_absolute_url }}">{{ rel.a.title }}</a></li>
+			{% endfor %}
+		</ul>
+		{% endif %}
+		
+		{% if game.related_from.all %}
+		<h4>Related to:</h4>
+		<ul>
+			{% for rel in game.related_from.all %}
+				<li><a href="{{ rel.b.get_real.get_absolute_url }}">{{ rel.b.title }}</a></li>
+			{% endfor %}
+		</ul>
+		{% endif %}
+		<br/>
 
-{% if game.related_to.all %}
-<h4>Related by:</h4>
-<ul>
-	{% for rel in game.related_to.all %}
-		<li><a href="{{ rel.a.get_real.get_absolute_url }}">{{ rel.a.title }}</a></li>
-	{% endfor %}
-</ul>
-{% endif %}
+	</div>
+</div>
+</div>
 
-{% if game.related_from.all %}
-<h4>Related to:</h4>
-<ul>
-	{% for rel in game.related_from.all %}
-		<li><a href="{{ rel.b.get_real.get_absolute_url }}">{{ rel.b.title }}</a></li>
-	{% endfor %}
-</ul>
-{% endif %}
 
-<br/>
+
 {% for comment in game.comments.all %}
 <div class="well" style="margin-left: 10px; padding: 10px;">
 	<div class="pull-right">

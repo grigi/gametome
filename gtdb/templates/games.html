@@ -12,6 +12,9 @@
 {% for game in games_list.object_list %}
 <div class="navbar">
 	<div class="navbar-inner">
+		{% if game.album.available_cover %}
+		<a href="{% url 'game' game.pk %}"><img class="pull-left" style="margin: 10px 10px 10px 0px;" src="{{ game.album.available_cover.thumbnail_image.url }}"/></a>
+		{% endif %}		
 		<div class="container pull-right"><small>
 			By {{ game.reporter.name }} on {{ game.created_date|date:"SHORT_DATETIME_FORMAT" }}
 			<br/>
