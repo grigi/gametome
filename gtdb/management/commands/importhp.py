@@ -11,6 +11,8 @@ import re
 from django.utils.timezone import now
 from django.db.models import Q
 #from html2bbcode.parser import HTML2BBCode
+#import html5lib
+#from html5lib import sanitizer
 from galeria.models import Album, Picture
 from html2text import html2text
 from django.utils.html import urlize
@@ -82,29 +84,31 @@ def find_game(gamename):
 def import_image(game, imagename):
     fname = '%s/data/screenshots/%s' % (settings.PROJECT_ROOT, imagename)
     if os.path.isfile(fname):
-        print game.title, imagename
-        album = Album.objects.create(
-            title = game.title,
-            slug = slugify(game.title),
-            description = "Screenshots for %s" % (game.title),
-            parent = gamealbum,
-        )
-        game.album = album
-        game.save()
-        pic = Picture(
-            title = game.title,
-            slug = slugify(game.title),
-            description = game.short,
-            album = album,
-        )
-        pic.original_image.save(
-            imagename,
-            File(open(fname))
-        )
-        pic.save()
-        global count_images
-        count_images += 1
-        
+        #print game.title, imagename
+        try:
+            album = Album.objects.create(
+                title = game.title,
+                slug = slugify(game.title),
+                description = "Screenshots for %s" % (game.title),
+                parent = gamealbum,
+            )
+            game.album = album
+            game.save()
+            pic = Picture(
+                title = game.title,
+                slug = slugify(game.title),
+                description = game.short,
+                album = album,
+            )
+            pic.original_image.save(
+                imagename,
+                File(open(fname))
+            )
+            pic.save()
+            global count_images
+            count_images += 1
+        except:
+            pass
     else:
         #print "Bad:", game.title, imagename
         pass
@@ -119,7 +123,11 @@ def sanitize_desc(desc):
     desc = re.sub(r'^\s+','', desc)
     desc = re.sub(r'\s+$','', desc)
     return bbparser.feed(urlize(desc)).strip()'''
-    return html2text(urlize(desc)).strip()
+    try:
+        return html2text(urlize(desc)).strip()
+    except:
+        return desc
+        
 
 def iter_fields_and_do(Clazz, field_name, func):
     for field in Clazz._meta.local_fields:
@@ -186,10 +194,10 @@ class Command(BaseCommand):
         print("Importing Games:")
         
         doc = json.load(open('%s/data/games.json' % (settings.PROJECT_ROOT)))
-        for g in doc[:200]:
+        for g in doc:#[:200]:
             #print(json.dumps(g,indent=4,sort_keys=True))
             
-            # Not handling: screenshot, approved_by, approved_date
+            # Not handling: approved_by, approved_date
             
             desc = g['description']
             if nlen(g['other']) > 2:
@@ -269,7 +277,7 @@ class Command(BaseCommand):
         print("Importing News:")
                 
         doc = json.load(open('%s/data/news.json' % (settings.PROJECT_ROOT)))
-        for n in doc[:200]:
+        for n in doc:#[:200]:
             #print(json.dumps(n,indent=4,sort_keys=True))
             
             # Handling everything :-)
@@ -353,7 +361,7 @@ class Command(BaseCommand):
             newdesc = ''
             old_last=0            
 
-            for m in re.finditer(r'[^\'"  =]*happypenguin\.org/(.*?)show[\?=]([^\'" \]]*)', ent.description):
+            for m in re.finditer(r'[^\'"  =\(]*happypenguin\.org/(.*?)show[\?=]([^\'" \]\)]*)', ent.description):
                 count_g += 1
                 gamename = urlparse.unquote(m.group(2))
                 game = find_game(gamename)
