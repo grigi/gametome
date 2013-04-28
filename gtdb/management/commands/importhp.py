@@ -17,20 +17,30 @@ from galeria.models import Album, Picture
 from html2text import html2text
 from django.utils.html import urlize
 from django.core.files import File
+from django.core.validators import URLValidator, ValidationError
 try:
-    import urlparse
+    from urllib import unquote_plus
 except ImportError:
     # Python 3
-    import urllib.parse as urlparse
+    from urllib.parse import unquote_plus
     unicode = str
 
 #sanhtml = html5lib.HTMLParser(tokenizer=sanitizer.HTMLSanitizer)
 #bbparser = HTML2BBCode()
+urlvalidate = URLValidator()
+
+fimg = open('imglog.txt','w')
 
 gamealbum = Album.objects.create(
     title = "Games",
     slug = "games",
     description = "Game-specific albums",
+)
+
+legacyalbum = Album.objects.create(
+    title = "Legacy",
+    slug = "legacy",
+    description = "Unconnected legacy images from happypenguin 2",
 )
 
 count_game = 0
@@ -39,6 +49,7 @@ count_comment = 0
 count_company = 0
 count_user = 0
 count_images = 0
+count_urls = 0
 
 images = {}
 
@@ -83,23 +94,48 @@ def find_game(gamename):
             return games[0]
     return None
 
-def import_image(game, imagename):
+def link_url(entity, desc, url):
+    try:
+        urlvalidate(url)
+    except ValidationError:
+        try:
+            urlvalidate(desc)
+            a=url
+            url=desc
+            desc=a
+        except ValidationError:
+            pass
+    URLlink.objects.create(
+        entity=entity,
+        desc=desc,
+        url=url
+    )
+    global count_urls
+    count_urls += 1
+    
+
+def import_image(game, imagename, title=None, short=None, parent=gamealbum):
+    if game:
+        title = game.title
+        short = game.short
+        
     fname = '%s/data/screenshots/%s' % (settings.PROJECT_ROOT, imagename)
     if os.path.isfile(fname):
         #print game.title, imagename
         try:
             album = Album.objects.create(
-                title = game.title,
-                slug = slugify(game.title),
-                description = "Screenshots for %s" % (game.title),
-                parent = gamealbum,
+                title = title,
+                slug = slugify(title),
+                description = "Screenshots for %s" % (title),
+                parent = parent,
             )
-            game.album = album
-            game.save()
+            if game:
+                game.album = album
+                game.save()
             pic = Picture(
-                title = game.title,
-                slug = slugify(game.title),
-                description = game.short,
+                title = title,
+                slug = slugify(title),
+                description = short,
                 album = album,
             )
             pic.original_image.save(
@@ -110,11 +146,17 @@ def import_image(game, imagename):
             images[imagename] = pic
             global count_images
             count_images += 1
+            return pic
         except:
             pass
     else:
-        #print "Bad:", game.title, imagename
-        pass
+        try:
+            print >>fimg, "Bad: '%s', '%s'" % (title, imagename)
+        except:
+            pass
+    
+    return None
+
 
 def sanitize_desc(desc):
     '''desc = re.sub(r'>\s+<', '><', desc)
@@ -181,6 +223,7 @@ class Command(BaseCommand):
         global count_company
         global count_user
         global count_images
+        global count_urls
         count_newsgame = 0
         count_newsgametot = 0
 
@@ -197,7 +240,7 @@ class Command(BaseCommand):
         print("Importing Games:")
         
         doc = json.load(open('%s/data/games.json' % (settings.PROJECT_ROOT)))
-        for g in doc[:200]:
+        for g in doc:#[:200]:
             #print(json.dumps(g,indent=4,sort_keys=True))
             
             # Not handling: approved_by, approved_date
@@ -249,13 +292,14 @@ class Command(BaseCommand):
                     score=r['rating']
                 )
             for u in g['urls']:
-                URLlink.objects.create(
+                link_url(
                     entity=game,
                     desc=u['description'] if u['description'] else 'unnamed',
                     url=u['url']
                 )
+                
             if g['homepage']:
-                URLlink.objects.create(
+                link_url(
                     entity=game,
                     desc='homepage',
                     url=g['homepage']
@@ -277,10 +321,11 @@ class Command(BaseCommand):
         print("%d Comments imported" % (count_comment))
         print("%d Companies/Authors imported" % (count_company))
         print("%d Users imported" % (count_user))
+        print("%s URL links imported" % (count_urls))
         print("Importing News:")
                 
         doc = json.load(open('%s/data/news.json' % (settings.PROJECT_ROOT)))
-        for n in doc[:200]:
+        for n in doc:#[:200]:
             #print(json.dumps(n,indent=4,sort_keys=True))
             
             # Handling everything :-)
@@ -382,7 +427,7 @@ class Command(BaseCommand):
                 if lm:
                     count_g += 1
                     #print 'g', m.start(), m.end(), (ent.description[int(m.start()):int(m.end())]).replace('\n', '')
-                    gamename = lm.group(1)
+                    gamename = unquote_plus(lm.group(1))
                     game = find_game(gamename)
                     if game:
                         count_gs += 1
@@ -396,28 +441,43 @@ class Command(BaseCommand):
                             a=ent.get_real(),
                             b=game,
                         )
+                    else:
+                        try:
+                            print >>fimg, "g %s: %s" % (gamename, (ent.description[int(m.start()):int(m.end())]).replace('\n', ''))
+                        except:
+                            pass
                 
                 lm = re.match(r'.*/images/(thumbs/)?(.*)', url1)
                 if lm:
                     count_i += 1
                     #print 'i', m.start(), m.end(), (ent.description[int(m.start()):int(m.end())]).replace('\n', '')
-                    image = lm.group(2)
+                    image = unquote_plus(lm.group(2))
+                    if desc == url1:
+                        desc = ''
+                    if not pre:
+                        pre = '['
                     try:
                         img = images[image]
-                        count_is += 1
-                        if desc == url1:
-                            desc = ''
                         if desc == '':
                             desc = img.title
-                        if not pre:
-                            pre = '['
+                    except:
+                        if desc == '':
+                            desc = image
+                        #print image, desc
+                        img = import_image(None, image, title=desc, short='', parent=legacyalbum)
+                    
+                    if img:
+                        count_is += 1
                         url1 = img.thumbnail_image.url
                         url2 = img.album.get_absolute_url()
                         val = '%s![%s](%s)](%s "%s")' % (pre, desc, url1, url2, desc)
                         newdesc += ent.description[old_last:int(m.start())] + val
                         old_last = int(m.end())
-                    except:
-                        pass
+                    else:
+                        try:
+                            print >>fimg, "i %s: %s" % (image, (ent.description[int(m.start()):int(m.end())]).replace('\n', ''))
+                        except:
+                            pass
 
             if nlen(newdesc) > 0:
                 newdesc += ent.description[old_last:]
@@ -429,7 +489,14 @@ class Command(BaseCommand):
                 #print '>'
                 #print '>', ent.description
                 ent.save()
+                count = count+1
+                if count==100:
+                    sys.stdout.write('.')
+                    sys.stdout.flush()
+                    count=0
+                    transaction.commit()
 
+        print('')                
         print('%d objects affected' % (count_uf))
         print('%d/%d Game URLs relinked' % (count_gs, count_g))
         print('%d/%d Images imported' % (count_is, count_i))
