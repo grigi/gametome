@@ -40,6 +40,8 @@ count_company = 0
 count_user = 0
 count_images = 0
 
+images = {}
+
 #IMP_DATE = '2013-04-01T00:00:00+00:00'
 
 def nlen(obj):
@@ -105,6 +107,7 @@ def import_image(game, imagename):
                 File(open(fname))
             )
             pic.save()
+            images[imagename] = pic
             global count_images
             count_images += 1
         except:
@@ -194,7 +197,7 @@ class Command(BaseCommand):
         print("Importing Games:")
         
         doc = json.load(open('%s/data/games.json' % (settings.PROJECT_ROOT)))
-        for g in doc:#[:200]:
+        for g in doc[:200]:
             #print(json.dumps(g,indent=4,sort_keys=True))
             
             # Not handling: approved_by, approved_date
@@ -277,7 +280,7 @@ class Command(BaseCommand):
         print("Importing News:")
                 
         doc = json.load(open('%s/data/news.json' % (settings.PROJECT_ROOT)))
-        for n in doc:#[:200]:
+        for n in doc[:200]:
             #print(json.dumps(n,indent=4,sort_keys=True))
             
             # Handling everything :-)
@@ -360,38 +363,70 @@ class Command(BaseCommand):
             origdesc = '%s' % (ent.description)
             newdesc = ''
             old_last=0            
-
-            for m in re.finditer(r'[^\'"  =\(]*happypenguin\.org/(.*?)show[\?=]([^\'" \]\)]*)', ent.description):
-                count_g += 1
-                gamename = urlparse.unquote(m.group(2))
-                game = find_game(gamename)
-                if game:
-                    #print 'g', m.start(), m.end(), ent.description[int(m.start()):int(m.end())]
-                    count_gs += 1
-                    newdesc += ent.description[old_last:int(m.start())-1] + '"' + game.get_absolute_url() + '"'
-                    old_last = int(m.end())+1
-                    # create relation to game of type 'linked'
-                    Relation.objects.create(
-                        type='linked',
-                        a=ent.get_real(),
-                        b=game,
-                    )
+            
+            for m in re.finditer(r'(\[[^\[\]\!]*)?(!?)\[([^\[\]]*)\]\(([^\)]*)\)(\]\(([^\)]*)\))?', ent.description):
+                try:
+                    pre = m.group(1).replace('\n', '')
+                except AttributeError:
+                    pre = None
+                img = m.group(2)
+                desc = m.group(3).replace('\n', '')
+                (url1, t, desc1) = re.match(r'([^ ]*)( [\'"]?([^\'"]*)[\'"]?)?', m.group(4).replace('\n', '')).groups()
+                try:
+                    (url2, t, desc2) = re.match(r'([^ ]*)( [\'"]?([^\'"]*)[\'"]?)?', m.group(6).replace('\n', '')).groups()
+                except AttributeError:
+                    url2 = None
+                    desc2 = None
                 
-            if nlen(newdesc) > 0:
-                newdesc += ent.description[old_last:]
-                ent.description = newdesc
-                    
-            for m in re.finditer(r'[^\'" =\(]*/images/([^\'" \]\)]*)', ent.description):
-                count_i += 1
-                #print 'i', m.start(), m.end(), ent.description[int(m.start()):int(m.end())]
-                image = urlparse.unquote(m.group(1))
+                lm = re.match(r'.*show[\?=](.*)', url1)
+                if lm:
+                    count_g += 1
+                    #print 'g', m.start(), m.end(), (ent.description[int(m.start()):int(m.end())]).replace('\n', '')
+                    gamename = lm.group(1)
+                    game = find_game(gamename)
+                    if game:
+                        count_gs += 1
+                        url1 = game.get_absolute_url()
+                        val = '[%s](%s)' % (desc, url1)
+                        newdesc += ent.description[old_last:int(m.start())] + val
+                        old_last = int(m.end())
+                        # create relation to game of type 'linked'
+                        Relation.objects.create(
+                            type='linked',
+                            a=ent.get_real(),
+                            b=game,
+                        )
+                
+                lm = re.match(r'.*/images/(thumbs/)?(.*)', url1)
+                if lm:
+                    count_i += 1
+                    #print 'i', m.start(), m.end(), (ent.description[int(m.start()):int(m.end())]).replace('\n', '')
+                    image = lm.group(2)
+                    try:
+                        img = images[image]
+                        count_is += 1
+                        if desc == url1:
+                            desc = ''
+                        if desc == '':
+                            desc = img.title
+                        if not pre:
+                            pre = '['
+                        url1 = img.thumbnail_image.url
+                        url2 = img.album.get_absolute_url()
+                        val = '%s![%s](%s)](%s "%s")' % (pre, desc, url1, url2, desc)
+                        newdesc += ent.description[old_last:int(m.start())] + val
+                        old_last = int(m.end())
+                    except:
+                        pass
 
             if nlen(newdesc) > 0:
                 newdesc += ent.description[old_last:]
                 ent.description = newdesc
             
             if origdesc != ent.description:
+                #print '<'
                 #print '<', origdesc
+                #print '>'
                 #print '>', ent.description
                 ent.save()
 
