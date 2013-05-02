@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
 from gtdb.models import Entity, Game, News, Comment, Review, URLlink, Company, Relation
 import json
-from django.db import transaction
+#from django.db import transaction
 import os
 import sys
 import re
@@ -18,6 +18,7 @@ from html2text import html2text
 from django.utils.html import urlize
 from django.core.files import File
 from django.core.validators import URLValidator, ValidationError
+from os import listdir
 try:
     from urllib import unquote_plus
 except ImportError:
@@ -123,15 +124,17 @@ def import_image(game, imagename, title=None, short=None, parent=gamealbum):
     if os.path.isfile(fname):
         #print game.title, imagename
         try:
-            album = Album.objects.create(
-                title = title,
-                slug = slugify(title),
-                description = "Screenshots for %s" % (title),
-                parent = parent,
-            )
             if game:
+                album = Album.objects.create(
+                    title = title,
+                    slug = slugify(title),
+                    description = "Screenshots for %s" % (title),
+                    parent = parent,
+                )
                 game.album = album
                 game.save()
+            else:
+                album = parent
             pic = Picture(
                 title = title,
                 slug = slugify(title),
@@ -214,8 +217,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Disable auto transactions - increase import performance
-        transaction.enter_transaction_management(managed=True)
-        transaction.managed(flag=True)
+        #transaction.enter_transaction_management(managed=True)
+        #transaction.managed(flag=True)
         count=0
         global count_game
         global count_news
@@ -312,7 +315,7 @@ class Command(BaseCommand):
                 sys.stdout.write('.')
                 sys.stdout.flush()
                 count=0
-                transaction.commit()
+                #transaction.commit()
 
         count_comment_games = count_comment
         print('')
@@ -388,14 +391,19 @@ class Command(BaseCommand):
                 sys.stdout.write('.')
                 sys.stdout.flush()
                 count=0
-                transaction.commit()
+                #transaction.commit()
 
         print('')
         print("%d News imported" % (count_news))
         print("%d Comments imported" % (count_comment - count_comment_games))
         print("%d/%d Games linked to" % (count_newsgame, count_newsgametot))
         print('Relinking urls:')
-        transaction.commit()
+        #transaction.commit()
+        
+        for f in listdir('%s/data/screenshots/' % (settings.PROJECT_ROOT)):
+            if not images.get(str(f), False):
+                #print f
+                import_image(None, str(f), title=str(f), short='', parent=legacyalbum)        
         
         count_uf=0
         count_g=0
@@ -494,10 +502,10 @@ class Command(BaseCommand):
                     sys.stdout.write('.')
                     sys.stdout.flush()
                     count=0
-                    transaction.commit()
+                    #transaction.commit()
 
         print('')                
         print('%d objects affected' % (count_uf))
         print('%d/%d Game URLs relinked' % (count_gs, count_g))
         print('%d/%d Images imported' % (count_is, count_i))
-        transaction.commit()
+        #transaction.commit()

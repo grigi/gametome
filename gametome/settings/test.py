@@ -16,6 +16,7 @@ DATABASES = {
         'PASSWORD': 'gametome',
         'HOST': '127.0.0.1',
         'PORT': '',
+        'OPTIONS': {'autocommit': True,}
     }
 }
 
@@ -31,6 +32,10 @@ WSGI_APPLICATION = 'gametome.wsgi_test.application'
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
 STATIC_ROOT = '/opt/gametome/static/'
+
+# Absolute filesystem path to the directory that will hold user-uploaded files.
+# Example: "/var/www/example.com/media/"
+MEDIA_ROOT = '/opt/gametome/media/'
 
 # Cache parsed templates
 TEMPLATE_LOADERS = (
