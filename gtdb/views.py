@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from pure_pagination import Paginator, EmptyPage
+from django.views.decorators.cache import cache_page
 from django.conf import settings
 from .models import *
 
@@ -7,9 +8,10 @@ RESULTS_PER_PAGE = getattr(settings, 'RESULTS_PER_PAGE', 20)
 
 # Create your views here.
 
+@cache_page(60)
 def index(request):
     ct = ContentType.objects.get(model='news')
-    news_list = News.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter').prefetch_related('comments', 'related_to__a', 'related_to__a__content_type', 'related_from__b', 'related_from__b__content_type')
+    news_list = News.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter')#.prefetch_related('comments', 'related_to__a', 'related_to__a__content_type', 'related_from__b', 'related_from__b__content_type')
     
     paginator = Paginator(news_list, RESULTS_PER_PAGE)
     try:
@@ -25,14 +27,16 @@ def index(request):
         'news_list': news_list,
     })
 
+@cache_page(60)
 def news(request, news_id):
     news = News.objects.filter(pk=news_id).select_related('reporter').prefetch_related('comments','comments__reporter', 'related_to', 'related_to__a', 'related_to__a__content_type', 'related_from', 'related_from__b', 'related_from__b__content_type')
     return render(request, 'news_item.html', {
         'news': news[0],
     })
 
+@cache_page(60)
 def games(request):
-    games_list = Game.objects.all().order_by('-created_date').select_related('reporter','album','company').prefetch_related('comments')
+    games_list = Game.objects.all().order_by('-created_date').select_related('reporter','album','company')#.prefetch_related('comments')
 
     paginator = Paginator(games_list, RESULTS_PER_PAGE)
     try:
@@ -48,15 +52,17 @@ def games(request):
         'games_list': games_list,
     })
 
+@cache_page(60)
 def game(request, game_id):
     game = Game.objects.filter(pk=game_id).select_related('reporter').prefetch_related('comments','comments__reporter', 'related_to__a', 'related_to__a__content_type', 'related_from__b', 'related_from__b__content_type')
     return render(request, 'game_item.html', {
         'game': game[0],
     })
 
+@cache_page(60)
 def companies(request):
     ct = ContentType.objects.get(model='company')
-    comp_list = Company.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter').prefetch_related('comments','games')
+    comp_list = Company.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter')#.prefetch_related('comments','games')
 
     paginator = Paginator(comp_list, RESULTS_PER_PAGE)
     try:

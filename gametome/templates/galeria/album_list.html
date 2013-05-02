@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load render from desc_render %}
+{% load cache %}
 
 {% block title %}Albums{% endblock %}
 
@@ -7,6 +8,7 @@
 
 <h1>Albums:</h1>
 {% for album in object_list %}
+{% cache 3600 album_list album.pk %}
 <div class="well">
 <a href="{{ album.get_absolute_url }}" style="text-decoration: none; color: inherit;">
 <div class="media">
@@ -23,6 +25,7 @@
 </div>
 </a>
 </div>
+{% endcache %}
 {% endfor %}
 
 {% endblock %}

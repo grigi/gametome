@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load url from future %}
+{% load cache %}
 <html>
 <head>
     <meta http-equiv="content-type" content="application/html; charset=utf-8">
@@ -29,6 +30,7 @@
 
     {% block extra_head %}{% endblock %}
     {% block extra_script %}{% endblock %}
+{% cache 3600 base_user user.username %}
 </head>
 <body>
 
@@ -83,7 +85,7 @@
 </div>
 
 <div class="container">
-
+{% endcache %}
 	{% if messages %}
 	<div class="alert alert-block alert-info">
 	    <a href="#" class="close" data-dismiss="alert">&times;</a>

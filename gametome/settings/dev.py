@@ -35,9 +35,10 @@ INSTALLED_APPS += (
 
 # Django Cacheing
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#caches
-'''CACHES = {
+CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        #'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
-'''
+

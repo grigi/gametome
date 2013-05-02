@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% load render from desc_render %}
+{% load cache %}
 
 {% block title %}Albums{% endblock %}
 
 {% block content %}
-
+{% cache 3600 album album.pk %}
 <div class="navbar">
 	<div class="navbar-inner">
 		<img class="pull-right" style="padding: 10px;" src="{{ object.available_cover.cover_image.url }}"/>
@@ -14,11 +15,13 @@
 		<p>{{ object.description|render }}</p>
 	</div>
 </div>
+{% endcache %}
 
 {% if object.children.count %}
 <h2>Sub-Albums:</h2>
 
 {% for album in object.children.all %}
+{% cache 3600 album_list album.pk %}
 <div class="well">
 <a href="{{ album.get_absolute_url }}" style="text-decoration: none; color: inherit;">
 <div class="media">
@@ -35,6 +38,7 @@
 </div>
 </a>
 </div>
+{% endcache %}
 {% endfor %}
 {% endif %}
 
@@ -43,6 +47,7 @@
 <h2>Images:</h2>
 
 {% for picture in object.ordered_pictures %}
+{% cache 3600 picture_list picture.pk picture.date_modified %}
 <div class="well">
 <a href="{{ picture.get_absolute_url }}" style="text-decoration: none; color: inherit;">
 <div class="media">
@@ -57,6 +62,7 @@
 </div>
 </a>
 </div>
+{% endcache %}
 {% endfor %}
 {% endif %}
 
