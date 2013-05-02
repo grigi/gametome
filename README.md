@@ -20,54 +20,67 @@ What currently works:
     * [Pallet (chosen because of "retro" colors)](http://www.colourlovers.com/palette/53698/Its_a_Virtue)
     * [Bootstrap theme (from above color scheme)](http://www.stylebootstrap.info/index.php?style=VMxlFu6B86U54mbXKRjho)
     * A work in progress
-* A working rich text editor
 * Import of legacy Game records:
     * Handling:
         * title, description, shortdescription, submittedby, createddate, updateddate, cost, version
         * Licence and capabilities is imported as tags
-        * description is run through an HTML sanitizer
+        * description is Translated to Markdown
         * ratings are imported as reviews with no body _(Not sure about this, should reviews and ratings be separate entities, or ratings as reviews?)_
         * Link to Company/Author
         * Includes 'other' if not empty
+        * Image importing into related albums
     * Not Handling:
-        * Image importing
         * approvals
 * Import of legacy News records:
     * Done!
     * headline,news,user,timestamp
     * extract category and short description from html blob
     * removed category/description/rating from html blob
-    * run news through HTML sanitizer
+    * Translate to Markdown
     * newstype and category imported as tags
     * link to game (if game exists)
 * Import of legacy Comments:
     * Handling:  
+        * comment is Translated to Markdown
         * subjext, comment, user, timestamp
-        * comment is run through an HTML sanitizer
         * sub-comments
         * Removing empty comments, and attaching children to parent
     * Not Handling:
         * spam detection
 * Import of Company/Author, with links to games
 * URL rewriting (games/news/comments):
-    * Handling:
-    	* Detects urls that links to games & Rewriting of valid urls that link to a game
-    	* Detect image urls
-    * Not Handling:
-        * Handling of images and/or thumbnails
+    * Detects urls that links to games & Rewriting of valid urls that link to a game
+	* Detect image urls
+    * Handling of images and/or thumbnails
 * News, Game, and Company pages with comments (comments not threaded yet)
 * Fulltext search Using Haystack & Whoosh
+* Simple Gallery (based on Galleria)
+* Simple Forum (based on PyBBm)
 
 What still needs to be done:
 
-* Threaded comments
-* RichText, sanitized, entry system
-* Content rating system (to combat trolling)
+* Proper pagination for gallery
+* Editing/creating new posts
+    * Live data editing for your own content (or if you got given proxy rights) to make maintaining data easier
+* Reviews/Content rating system (to combat trolling)
+* Auto show images of related game item in news
 * Spam detection
-* I18N and L10N
-* Live data editing for your own content (or if you got given proxy rights) to make maintaining data easier
+* Threaded comments
+* I18N
 * Finishing the theme
+* Modernize the interface, using more javascript to make site flow better
+    * Separate site logic from rendering
+    * Make pagination implicit
 * Usability testing
+* Cleanup/refactoring of code:
+    * Duplication of functionality for emoticons and profile page
+    * Restructure project to be cleaner
+    * Read two-scoops book
+* Performance tuning:
+    * Do query tuning
+    * Implement object-level cacheing
+    * Use content compressors
+
 
 To get the initial data:
 
