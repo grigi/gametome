@@ -9,7 +9,7 @@ RESULTS_PER_PAGE = getattr(settings, 'RESULTS_PER_PAGE', 20)
 
 def index(request):
     ct = ContentType.objects.get(model='news')
-    news_list = News.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter').prefetch_related('comments', 'related_to', 'related_to__a', 'related_to__a__content_type', 'related_from', 'related_from__b', 'related_from__b__content_type')
+    news_list = News.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter').prefetch_related('comments', 'related_to__a', 'related_to__a__content_type', 'related_from__b', 'related_from__b__content_type')
     
     paginator = Paginator(news_list, RESULTS_PER_PAGE)
     try:
@@ -32,7 +32,7 @@ def news(request, news_id):
     })
 
 def games(request):
-    games_list = Game.objects.all().order_by('-created_date').select_related('reporter').prefetch_related('comments')
+    games_list = Game.objects.all().order_by('-created_date').select_related('reporter','album','company').prefetch_related('comments')
 
     paginator = Paginator(games_list, RESULTS_PER_PAGE)
     try:
@@ -56,7 +56,7 @@ def game(request, game_id):
 
 def companies(request):
     ct = ContentType.objects.get(model='company')
-    comp_list = Company.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter').prefetch_related('comments')
+    comp_list = Company.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter').prefetch_related('comments','games')
 
     paginator = Paginator(comp_list, RESULTS_PER_PAGE)
     try:
