@@ -70,6 +70,16 @@ class News(Entity):
     class Meta:
         proxy = True
     
+    def get_game(self):
+        if getattr(self,'_game', False):
+            return self._game
+        try:
+            self._game = self.related_from.filter(type='news')[0].b.get_real()
+            return self._game
+        except IndexError:
+            self._game = None
+            return None
+    
     def get_absolute_url(self):
         return "/news/%d/" % (self.pk)
 

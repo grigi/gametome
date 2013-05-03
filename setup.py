@@ -18,7 +18,7 @@ setup(
     # Dependencies
     install_requires = [
         'django >=1.5',
-        'django-ckeditor >=4.0',
+        #'django-ckeditor >=4.0',
         'django-taggit',
         'django-allauth >=0.10',
         #'html5lib',
@@ -28,6 +28,7 @@ setup(
         'pybb',
         'sorl.thumbnail',
         'pure_pagination',
+        'django-galeria',
     ],
     dependency_links = [
     ],

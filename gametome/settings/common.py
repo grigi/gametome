@@ -119,7 +119,7 @@ INSTALLED_APPS = (
     # 3rd Party apps
     'haystack',
     'taggit',
-    'ckeditor',
+    #'ckeditor',
     
     'pybb',
     #'pytils',

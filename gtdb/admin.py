@@ -3,11 +3,21 @@ from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.db import models as fieldmodels
 #from tinymce.widgets import TinyMCE
-from ckeditor.widgets import CKEditorWidget
+#from ckeditor.widgets import CKEditorWidget
 from . import models
 
 
 # Configure your admin interface here.
+
+class RelatedAInline(admin.StackedInline):
+    model = models.Relation
+    extra = 0
+    fk_name = 'a'
+
+class RelatedBInline(admin.StackedInline):
+    model = models.Relation
+    extra = 0
+    fk_name = 'b'
 
 class URLInline(admin.StackedInline):
     model = models.URLlink
@@ -19,28 +29,28 @@ class ReviewInline(admin.StackedInline):
     extra = 0
     fk_name = 'entity'
     readonly_fields = ['created_date', 'updated_date']
-    formfield_overrides = {
-        fieldmodels.TextField: {'widget': CKEditorWidget(attrs={'cols': 80, 'rows': 30})},
-    }
+    #formfield_overrides = {
+    #    fieldmodels.TextField: {'widget': CKEditorWidget(attrs={'cols': 80, 'rows': 30})},
+    #}
     
 class CommentInline(admin.StackedInline):
     model = models.Comment
     extra = 0
     fk_name = 'entity'
     readonly_fields = ['created_date', 'updated_date']
-    formfield_overrides = {
-        fieldmodels.TextField: {'widget': CKEditorWidget(attrs={'cols': 80, 'rows': 30})},
-    }
+    #formfield_overrides = {
+    #    fieldmodels.TextField: {'widget': CKEditorWidget(attrs={'cols': 80, 'rows': 30})},
+    #}
     
 class EntityAdmin(admin.ModelAdmin):
-    inlines = [URLInline, CommentInline, ReviewInline]
+    inlines = [URLInline, CommentInline, ReviewInline, RelatedAInline, RelatedBInline]
     list_select_related = True
     list_display = ['title', 'created_date', 'reporter', 'desc_short']
     readonly_fields = ['created_date', 'updated_date']
     list_filter = ['content_type']
-    formfield_overrides = {
-        fieldmodels.TextField: {'widget': CKEditorWidget(attrs={'cols': 80, 'rows': 30})},
-    }
+    #formfield_overrides = {
+    #    fieldmodels.TextField: {'widget': CKEditorWidget(attrs={'cols': 80, 'rows': 30})},
+    #}
 
 class NewsAdmin(EntityAdmin):
     list_filter = []
