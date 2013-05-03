@@ -15,7 +15,7 @@
 <div class="navbar">
 	<div class="navbar-inner">
 		{% if news.get_game.album.available_cover %}
-		<a href="{% url 'game' news.get_game.pk %}"><img class="pull-left" style="margin: 10px 10px 10px 0px;" src="{{ news.get_game.album.available_cover.thumbnail_image.url }}"/></a>
+		<a href="{% url 'news' news.pk %}"><img class="pull-left" style="margin: 10px 10px 10px 0px;" src="{{ news.get_game.album.available_cover.thumbnail_image.url }}"/></a>
 		{% endif %}		
 		<div class="container pull-right"><small>
 			By {{ news.reporter.name }} on {{ news.created_date|date:"SHORT_DATETIME_FORMAT" }}
@@ -30,12 +30,11 @@
 		<span class="label">{{tag}}</span>
 	{% endfor %}
 	</p>
+	{% if news.get_game %}
+	<h4>Related game: <small><a href="{{ news.get_game.get_absolute_url }}">{{ news.get_game.title}}</a></small></h4>
+	{% endif %}
 </div>
 {{ news.description | render }}
-
-{% if news.get_game %}
-<h4>Related game: <small><a href="{{ news.get_game.get_absolute_url }}">{{ news.get_game.title}}</a></small></h4>
-{% endif %}
 
 <br/>
 [<a href="{% url 'news' news.pk %}">Read more... {{ news.comments.count }} Comments</a>]
