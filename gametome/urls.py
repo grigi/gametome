@@ -25,7 +25,7 @@ urlpatterns = patterns('',
     # PyBBM
     (r'^forum/', include('pybb.urls', namespace='pybb')),
     # Gallery
-    (r'^gallery/', include('galeria.urls')),
+    (r'^gallery/', include('gallery.urls')),
     
     # GTDB - fallthrough
     url(r'^', include('gtdb.urls')),

@@ -143,6 +143,7 @@ INSTALLED_APPS = (
     
     # Bespoke apps
     'gtdb',
+    'gallery',
     #'gtdb2',
     
 )

@@ -6,8 +6,12 @@
 
 {% block content %}
 
+<small class="pull-right hidden-phone">
+	{{ object_list.render }}
+</small>
 <h1>Albums:</h1>
-{% for album in object_list %}
+
+{% for album in object_list.object_list %}
 {% cache 3600 album_list album.pk %}
 <div class="well">
 <a href="{{ album.get_absolute_url }}" style="text-decoration: none; color: inherit;">
@@ -28,4 +32,9 @@
 {% endcache %}
 {% endfor %}
 
+<div align="right">
+	<small>
+		{{ object_list.render }}
+	</small>
+</div>
 {% endblock %}
