@@ -8,6 +8,7 @@
 <small class="pull-right hidden-phone">
 	{{ news_list.render }}
 </small>
+<a class="btn" href="{% url 'news_new' %}">Add News</a>
 <h1 align="center">News</h1>
 
 {% for news in news_list.object_list %}

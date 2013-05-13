@@ -119,11 +119,10 @@ INSTALLED_APPS = (
     # 3rd Party apps
     'haystack',
     'taggit',
-    #'ckeditor',
     
     'pybb',
     #'pytils',
-    'sorl.thumbnail',
+    #'sorl.thumbnail',
     'pure_pagination',
     'galeria',
     

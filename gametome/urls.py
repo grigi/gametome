@@ -15,8 +15,6 @@ urlpatterns = patterns('',
     # Admin panel
     url(r'^admin/logout/$', 'allauth.account.views.logout', name='admin:logout'),  
     url(r'^admin/', include(admin.site.urls)),
-    # RichText editor
-    (r'^ckeditor/', include('ckeditor.urls')),
     # AllAuth & Profile
     url(r'^accounts/profile/$', profile_view, name='profile'),
     url(r'^accounts/', include('allauth.urls')),

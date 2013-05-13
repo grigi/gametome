@@ -91,7 +91,7 @@ To get the initial data:
 To get started:
 
 * Setup a python environment (preferably a virtualenv)
-* `pip install django-ckeditor django-taggit django-allauth` - install requirements
+* `pip install django-taggit django-allauth` - install requirements
 * `./manage.py syncdb` - default dev config uses a local sqlite database
 * `./manage.py importhp` - import the legacy data
 * `./manage.py runserver` - development server

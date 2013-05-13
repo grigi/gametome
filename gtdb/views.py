@@ -1,14 +1,21 @@
 from django.shortcuts import render
 from pure_pagination import Paginator, EmptyPage
-from django.views.decorators.cache import cache_page
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from django.conf import settings
+from django.forms import ModelForm
 from .models import *
 
 RESULTS_PER_PAGE = getattr(settings, 'RESULTS_PER_PAGE', 20)
 
+
+class NewsForm(ModelForm):
+    class Meta:
+        model = News
+        exclude = ('reporter', 'content_type',)
+
 # Create your views here.
 
-@cache_page(60)
 def index(request):
     ct = ContentType.objects.get(model='news')
     news_list = News.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter')#.prefetch_related('comments', 'related_to__a', 'related_to__a__content_type', 'related_from__b', 'related_from__b__content_type')
@@ -27,14 +34,34 @@ def index(request):
         'news_list': news_list,
     })
 
-@cache_page(60)
 def news(request, news_id):
     news = News.objects.filter(pk=news_id).select_related('reporter').prefetch_related('comments','comments__reporter', 'related_to', 'related_to__a', 'related_to__a__content_type', 'related_from', 'related_from__b', 'related_from__b__content_type')
     return render(request, 'news_item.html', {
         'news': news[0],
     })
 
-@cache_page(60)
+def news_modify(request, news_id = None):
+    if request.method == 'POST': # If the form has been submitted...
+        if news_id:
+            news = News.objects.get(pk=news_id)
+            form = NewsForm(request.POST, instance=news)
+        else:
+            form = NewsForm(request.POST) # A form bound to the POST data
+        if form.is_valid():
+            news = form.save(commit=False)
+            news.reporter = request.user
+            news.save()
+            return HttpResponseRedirect(reverse('news', args=(news.pk,)))
+    else:
+        if news_id:
+            news = News.objects.get(pk=news_id)
+            form = NewsForm(instance=news)
+        else:
+            form = NewsForm()
+    return render(request, 'news_modify.html',{
+        'news': form,
+    })
+
 def games(request):
     games_list = Game.objects.all().order_by('-created_date').select_related('reporter','album','company')#.prefetch_related('comments')
 
@@ -52,14 +79,12 @@ def games(request):
         'games_list': games_list,
     })
 
-@cache_page(60)
 def game(request, game_id):
     game = Game.objects.filter(pk=game_id).select_related('reporter').prefetch_related('comments','comments__reporter', 'related_to__a', 'related_to__a__content_type', 'related_from__b', 'related_from__b__content_type')
     return render(request, 'game_item.html', {
         'game': game[0],
     })
 
-@cache_page(60)
 def companies(request):
     ct = ContentType.objects.get(model='company')
     comp_list = Company.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter')#.prefetch_related('comments','games')

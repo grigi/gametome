@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load render from desc_render %}
+
+{% block head_title %}Add News{% endblock %}
+
+{% block content %}
+<form action="{% url 'news_new' %}" method="post">{% csrf_token %}
+{{ news.as_p }}
+<input type="submit" value="Submit" />
+</form>
+
+
+{% endblock %}

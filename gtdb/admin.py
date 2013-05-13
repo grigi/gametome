@@ -3,7 +3,6 @@ from django.contrib import admin
 from django.contrib.contenttypes.models import ContentType
 from django.db import models as fieldmodels
 #from tinymce.widgets import TinyMCE
-#from ckeditor.widgets import CKEditorWidget
 from . import models
 
 
@@ -29,18 +28,12 @@ class ReviewInline(admin.StackedInline):
     extra = 0
     fk_name = 'entity'
     readonly_fields = ['created_date', 'updated_date']
-    #formfield_overrides = {
-    #    fieldmodels.TextField: {'widget': CKEditorWidget(attrs={'cols': 80, 'rows': 30})},
-    #}
     
 class CommentInline(admin.StackedInline):
     model = models.Comment
     extra = 0
     fk_name = 'entity'
     readonly_fields = ['created_date', 'updated_date']
-    #formfield_overrides = {
-    #    fieldmodels.TextField: {'widget': CKEditorWidget(attrs={'cols': 80, 'rows': 30})},
-    #}
     
 class EntityAdmin(admin.ModelAdmin):
     inlines = [URLInline, CommentInline, ReviewInline, RelatedAInline, RelatedBInline]
@@ -49,7 +42,7 @@ class EntityAdmin(admin.ModelAdmin):
     readonly_fields = ['created_date', 'updated_date']
     list_filter = ['content_type']
     #formfield_overrides = {
-    #    fieldmodels.TextField: {'widget': CKEditorWidget(attrs={'cols': 80, 'rows': 30})},
+    #    fieldmodels.TextField: {'widget': SOME_AWESOME_WIDGET(attrs={'cols': 80, 'rows': 30})},
     #}
 
 class NewsAdmin(EntityAdmin):
