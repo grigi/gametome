@@ -8,8 +8,7 @@
 <small class="pull-right hidden-phone">
 	{{ news_list.render }}
 </small>
-<a class="btn" href="{% url 'news_new' %}">Add News</a>
-<h1 align="center">News</h1>
+<h1 align="center">News <a class="btn" href="{% url 'news_new' %}"><i class="icon-plus"></i></a></h1>
 
 {% for news in news_list.object_list %}
 {% cache 3600 news_list news.pk news.updated_date %}

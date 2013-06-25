@@ -8,7 +8,7 @@
 <small class="pull-right hidden-phone">
 	{{ games_list.render }}
 </small>
-<h1 align="center">Games</h1>
+<h1 align="center">Games <a class="btn" href="{% url 'game_new' %}"><i class="icon-plus"></i></a></h1>
 
 {% for game in games_list.object_list %}
 {% cache 3600 game_list game.pk game.updated_date %}

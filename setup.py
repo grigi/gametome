@@ -18,17 +18,15 @@ setup(
     # Dependencies
     install_requires = [
         'django >=1.5',
-        #'django-ckeditor >=4.0',
         'django-taggit',
         'django-allauth >=0.10',
-        #'html5lib',
         'django-haystack',
         'Whoosh',
-        #'django-threadedcomments >=0.9',
-        #'pybb',
+        'html2text',
+        'pybbm',
         #'sorl.thumbnail',
         'django-pure-pagination',
-        #'django-galeria',
+        'django-galeria',
     ],
     dependency_links = [
     ],

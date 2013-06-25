@@ -13,6 +13,16 @@ class NewsForm(ModelForm):
         model = News
         exclude = ('reporter', 'content_type',)
 
+class GameForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(GameForm, self).__init__(*args, **kwargs)
+        ct = ContentType.objects.get(model='company')
+        self.fields["company"].queryset = Company.objects.filter(content_type=ct)
+
+    class Meta:
+        model = Game
+        exclude = ('reporter', 'content_type', 'album', )
+
 # Create your views here.
 
 def index(request):
@@ -81,6 +91,27 @@ def game(request, game_id):
     game = Game.objects.filter(pk=game_id).select_related('reporter').prefetch_related('comments','comments__reporter', 'related_to__a', 'related_to__a__content_type', 'related_from__b', 'related_from__b__content_type')
     return render(request, 'game_item.html', {
         'game': game[0],
+    })
+
+def game_modify(request, game_id = None):
+    try:
+        instance = Game.objects.get(pk=game_id)
+    except Game.DoesNotExist:
+        instance = None
+
+    if request.method == 'POST': # If the form has been submitted...
+        form = GameForm(request.POST, instance=instance)
+        if form.is_valid():
+            game = form.save(commit=False)
+            game.reporter = request.user
+            game.save()
+            return redirect('game', game.pk)
+    else:
+        form = GameForm(instance=instance)
+
+    return render(request, 'game_modify.html',{
+        'form': form,
+        'instance': instance,
     })
 
 def companies(request):
