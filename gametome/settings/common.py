@@ -155,9 +155,15 @@ PAGINATION_SETTINGS = {
     'MARGIN_PAGES_DISPLAYED': 2,
 }
 
-HAYSTACK_SITECONF = 'gametome.search_sites'
-HAYSTACK_SEARCH_ENGINE = 'whoosh'
-HAYSTACK_WHOOSH_PATH = normpath(join(PROJECT_ROOT, 'whoosh_index'))
+#HAYSTACK_SITECONF = 'gametome.search_sites'
+#HAYSTACK_SEARCH_ENGINE = 'whoosh'
+#HAYSTACK_WHOOSH_PATH = normpath(join(PROJECT_ROOT, 'whoosh_index'))
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': normpath(join(PROJECT_ROOT, 'whoosh_index')),
+    },
+}
 HAYSTACK_SEARCH_RESULTS_PER_PAGE = RESULTS_PER_PAGE
 
 from imagekit.processors import Anchor, ResizeToFill, ResizeToFit, Transpose, SmartResize

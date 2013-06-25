@@ -1,7 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from pure_pagination import Paginator, EmptyPage
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.forms import ModelForm
 from .models import *
@@ -19,7 +18,7 @@ class NewsForm(ModelForm):
 def index(request):
     ct = ContentType.objects.get(model='news')
     news_list = News.objects.filter(content_type=ct).order_by('-created_date').select_related('reporter')#.prefetch_related('comments', 'related_to__a', 'related_to__a__content_type', 'related_from__b', 'related_from__b__content_type')
-    
+
     paginator = Paginator(news_list, RESULTS_PER_PAGE)
     try:
         page = int(request.GET.get('page', 1))
@@ -29,7 +28,7 @@ def index(request):
         news_list = paginator.page(page)
     except EmptyPage:
         news_list = paginator.page(paginator.num_pages)
-        
+
     return render(request, 'index.html', {
         'news_list': news_list,
     })
@@ -41,25 +40,24 @@ def news(request, news_id):
     })
 
 def news_modify(request, news_id = None):
+    try:
+        instance = News.objects.get(pk=news_id)
+    except News.DoesNotExist:
+        instance = None
+
     if request.method == 'POST': # If the form has been submitted...
-        if news_id:
-            news = News.objects.get(pk=news_id)
-            form = NewsForm(request.POST, instance=news)
-        else:
-            form = NewsForm(request.POST) # A form bound to the POST data
+        form = NewsForm(request.POST, instance=instance)
         if form.is_valid():
             news = form.save(commit=False)
             news.reporter = request.user
             news.save()
-            return HttpResponseRedirect(reverse('news', args=(news.pk,)))
+            return redirect('news', news.pk)
     else:
-        if news_id:
-            news = News.objects.get(pk=news_id)
-            form = NewsForm(instance=news)
-        else:
-            form = NewsForm()
+        form = NewsForm(instance=instance)
+
     return render(request, 'news_modify.html',{
-        'news': form,
+        'form': form,
+        'instance': instance,
     })
 
 def games(request):
@@ -74,7 +72,7 @@ def games(request):
         games_list = paginator.page(page)
     except EmptyPage:
         games_list = paginator.page(paginator.num_pages)
-    
+
     return render(request, 'games.html', {
         'games_list': games_list,
     })
@@ -98,7 +96,7 @@ def companies(request):
         comp_list = paginator.page(page)
     except EmptyPage:
         comp_list = paginator.page(paginator.num_pages)
-    
+
     return render(request, 'companies.html', {
         'comp_list': comp_list,
     })

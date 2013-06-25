@@ -4,7 +4,7 @@ from django.conf.urls import patterns, include, url
 urlpatterns = patterns('gtdb.views',
     # Examples:
     url(r'^$', 'index', name='index'),
-    url(r'^news/$', 'news_modify', name='news_modify'),
+    url(r'^news/$', 'news_modify', name='news_new'),
     url(r'^news/(?P<news_id>\d+)/edit/$', 'news_modify', name='news_modify'),
     url(r'^news/(?P<news_id>\d+)/$', 'news', name='news'),
     url(r'^games/$', 'games', name='games'),

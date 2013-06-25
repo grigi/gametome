@@ -26,7 +26,7 @@ class Entity(models.Model):
     reporter = models.ForeignKey(User, null=True, blank=True)
     content_type = models.ForeignKey(ContentType)
     
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
 
     def get_real(self):
         return self.content_type.model_class().objects.get(pk=self.pk)

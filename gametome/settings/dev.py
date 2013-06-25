@@ -30,7 +30,7 @@ STATIC_ROOT = normpath(join(PROJECT_ROOT, 'static_root'))
 
 INSTALLED_APPS += (
     # Any dev-only apps to include
-    'devserver',
+    #'devserver',
 )
 
 # Django Cacheing
